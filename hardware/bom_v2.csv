@@ -1,0 +1,45 @@
+Reference,Value,Quantity,Description,Manufacturer,Part Number,Package,Supplier,Supplier PN,Unit Price INR,Total INR,Notes
+U1,ESP32-C3-MINI-1,1,WiFi+BLE MCU module with PCB antenna 160MHz ARM Cortex-M0+,Espressif,ESP32-C3-MINI-1-N4,SMD Module,Robu.in / Mouser,ESP32-C3-MINI-1-N4,180,180,Replace ATSAMD21E18 - has native USB
+U2,SHT40,1,High precision I2C temp/humidity sensor ±0.2°C,Sensirion,SHT40-AD1B-R2,DFN-4 1.5x1.5mm,Mouser,SHT40-AD1B-R2,95,95,I2C addr 0x44 - replaces SHT3x
+U3,ATECC608A-MAHDA-T,1,Hardware ECC crypto secure element,Microchip,ATECC608A-MAHDA-T,UDFN-8,Mouser,ATECC608A-MAHDA-T,55,55,I2C addr 0x60 - unchanged from v1
+U4,ST25DV04K-IE6T3,1,NFC/RFID tag IC 4Kbit EEPROM,STMicroelectronics,ST25DV04K-IE6T3,SO8N,Mouser,ST25DV04K-IE6T3,75,75,I2C addr 0x53 - backward compatible NFC
+U5,ADXL345BCCZ-RL7,1,3-axis digital accelerometer ±16g SPI,Analog Devices,ADXL345BCCZ-RL7,LGA-14,Mouser,ADXL345BCCZ-RL7,65,65,Replaces MMA8452Q - better range
+U6,E22-900M30S,1,LoRa SX1262 module 865-928MHz 30dBm SPI,Ebyte / Semtech,E22-900M30S,SMD Module,Robu.in / Aliexpress,E22-900M30S,320,320,India 865MHz band - 15km range
+U7,MAX-M10S-00B,1,u-blox ultra-low power GNSS module,u-blox,MAX-M10S-00B,LCC-18,Mouser,MAX-M10S-00B,450,450,UART 9600baud - hot start <2s
+U8,TP4056,1,1A LiPo charge IC with USB-C input,TOPPOWER,TP4056-42-ESOP8,ESOP-8,Robu.in,TP4056,35,35,USB-C charging for LiPo
+U9,MAX17048G+T10,1,LiPo fuel gauge 1% accuracy I2C,Maxim/Analog Devices,MAX17048G+T10,SOT-23-5,Mouser,MAX17048G+T10,85,85,I2C addr 0x36
+U10,DW01A,1,LiPo battery protection IC,Fortune Semiconductor,FS8205A+DW01A,SOT-23-6 + SOT-23-6,Robu.in,DW01A,15,15,Over-voltage over-current protection
+U11,AMS1117-3.3,1,3.3V LDO regulator 800mA,AMS,AMS1117-3.3,SOT-223,Robu.in,AMS1117-3.3,12,12,Main 3.3V rail
+U12,AMS1117-3.3,1,3.3V LDO for GPS power domain,AMS,AMS1117-3.3,SOT-223,Robu.in,AMS1117-3.3,12,12,Switchable GPS power domain
+D1,LED_RED,1,Red LED 3mm or 0603 SMD,Generic,WP7113ID,0603 SMD,Robu.in,LED-RED-0603,3,3,RGB indicator - GPIO12
+D2,LED_GREEN,1,Green LED 3mm or 0603 SMD,Generic,WP7113GT,0603 SMD,Robu.in,LED-GRN-0603,3,3,RGB indicator - GPIO13
+D3,LED_BLUE,1,Blue LED 3mm or 0603 SMD,Generic,WP7113QBC/D,0603 SMD,Robu.in,LED-BLU-0603,3,3,RGB indicator - GPIO14
+D4,LED_YELLOW,1,Yellow LED 0603 SMD,Generic,LED-YEL-0603,0603 SMD,Robu.in,LED-YEL-0603,3,3,Battery status - GPIO15
+Q1,2N2222,1,NPN transistor SOT-23 buzzer driver,ON Semiconductor,2N2222A,SOT-23,Robu.in,2N2222,5,5,Buzzer drive via GPIO11
+BZ1,PASSIVE_BUZZER_3V3,1,Passive buzzer 5V or 3.3V,Generic,TMB12A03,THT 12mm,Robu.in,BUZZER-3V3,25,25,Driven by Q1 NPN transistor
+J1,JST-PH-2PIN,1,JST PH 2-pin connector for LiPo,JST,S2B-PH-K-S,THT,Robu.in,JST-PH-2,8,8,LiPo battery connection
+J2,USB-C-RECEPTACLE,1,USB Type-C receptacle with D+/D-,Amphenol,GCT USB4125,SMD,Mouser,USB4125-GF-A,45,45,TP4056 charging + ESP32 USB data
+J3,FPC-8PIN,1,8-pin FPC/FFC connector 0.5mm pitch,Molex,5051102291,SMD,Mouser,505110-2291,30,30,e-ink display connection
+R1,330,1,330 ohm resistor 0603 1/10W,Generic,,0603,Robu.in,RES-330R-0603,1,1,RGB LED Red - GPIO12
+R2,330,1,330 ohm resistor 0603 1/10W,Generic,,0603,Robu.in,RES-330R-0603,1,1,RGB LED Green - GPIO13
+R3,330,1,330 ohm resistor 0603 1/10W,Generic,,0603,Robu.in,RES-330R-0603,1,1,RGB LED Blue - GPIO14
+R4,330,1,330 ohm resistor 0603 1/10W,Generic,,0603,Robu.in,RES-330R-0603,1,1,Battery LED - GPIO15
+R5,10k,1,10k ohm resistor 0603 1/10W,Generic,,0603,Robu.in,RES-10K-0603,1,1,Tamper pullup to 3.3V
+R6,1k,1,1k ohm base resistor for buzzer NPN,Generic,,0603,Robu.in,RES-1K-0603,1,1,Q1 base current limiting
+C1,100nF,8,100nF decoupling capacitor X7R 0402,Generic,,0402,Robu.in,CAP-100NF-0402,0.5,4,Decoupling all IC VCC pins
+C9,10uF,2,10uF 16V tantalum 0805,Generic,,0805,Robu.in,CAP-10UF-0805,8,16,Bulk bypass on 3.3V rail
+C11,4.7uF,1,4.7uF 10V ceramic 0805,Generic,,0805,Robu.in,CAP-47UF-0805,6,6,TP4056 VBAT stability
+C12,100uF,1,100uF 10V electrolytic,Generic,,THT 5mm,Robu.in,CAP-100UF-10V,8,8,LiPo rail bulk capacitor
+ANT1,UFL-R-SMT,1,U.FL (IPEX) SMD antenna connector,Hirose,U.FL-R-SMT-1(10),SMD,Mouser,U.FL-R-SMT-1,25,25,LoRa antenna connector
+ANT-CABLE,LoRa-Antenna-865,1,865MHz whip antenna with U.FL cable,Generic,SW900-ANT,External,Robu.in / Aliexpress,LORA-ANT-865,80,80,Tuned for 865MHz India band
+PCB,,1,2-layer PCB custom design 100x60mm,JLCPCB,,FR4 1.6mm,JLCPCB,Custom,350,350,5pcs minimum order including shipping
+BAT1,LP603450,1,LiPo battery 3.7V 1000mAh with JST-PH,Generic,LP603450 1000mAh,Pouch Cell,Robu.in,LIPO-1000MAH,120,120,1000mAh runtime ~34 days
+,,,,,,,,,,
+,,,,TOTAL,,,,,1800,
+,,,,,,,,,,
+,,,,Notes:,,,,,,
+,,,,1. Prices in INR approx. as of 2026,,,,,,
+,,,,2. ESP32-C3-MINI-1 available at Robu.in/Quartz Components,,,,,,
+,,,,3. SX1262 module: EBYTE E22-900M30S or similar,,,,,,
+,,,,4. u-blox MAX-M10S: order via Mouser for genuine part,,,,,,
+,,,,5. PCB order: 5pcs at JLCPCB approx INR 350 with shipping,,,,,,
