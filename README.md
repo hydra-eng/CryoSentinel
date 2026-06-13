@@ -140,7 +140,7 @@ The dashboard displays real-time state changes as the cargo travels, transitioni
 #### 🔌 PCB Design & Schematic Layout
 * **Schematic Design Layout**: Below is the fully updated schematic overview for pinouts, bus routing, and secure element integration.
   
-  ![Cryo Sentinel Schematic](docs/images/cryosentinel_schematic.png)
+  ![Cryo Sentinel Schematic](docs/images/kicad_schematic_collage.png)
 
 * **PCB Layout View**: Rendered 2D board view demonstrating compact trace routing, component grouping, and antenna placement.
   
@@ -206,42 +206,68 @@ Every alert transmitted by the device contains cryptographic signatures to guara
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Sensor as SHT40 & GPS
+    
+    box rgb(20, 30, 40) "Edge Hardware (Cryo Sentinel)"
+    participant Sensor as I2C/SPI Sensors
     participant MCU as ESP32-C3 Core
     participant Crypto as ATECC608A
-    participant Storage as SPI Flash
-    participant LoRa as SX1262 Transceiver
-    participant Dash as Enterprise Dashboard
+    participant Storage as RTC Memory / Flash
+    participant LoRa as SX1262 LoRaWAN
+    participant NFC as ST25DV Tag
+    end
+
+    box rgb(30, 20, 20) "Cloud Infrastructure"
+    participant Gateway as TTN Gateway
+    participant Backend as FastAPI Backend
+    participant Dash as Web Dashboard
+    end
 
     rect rgb(30, 40, 50)
-        Note right of Sensor: 1. Environmental Audit Phase
-        MCU->>Sensor: Request Environment & Location Data
-        Sensor-->>MCU: Return Temp, Humidity, GPS Coords
-        MCU->>MCU: Format Log String & SHA-256 Hash
+        Note right of Sensor: 1. Environmental Audit
+        MCU->>Sensor: Wake & Request Telemetry
+        Sensor-->>MCU: Temp, Humidity, Shock, GPS
+        MCU->>MCU: Cayenne LPP Binary Formatting
     end
 
     rect rgb(40, 30, 30)
-        Note right of Sensor: 2. Cryptographic Sealing Phase
-        MCU->>Crypto: Transmit Log Hash for Signing
-        activate Crypto
-        Crypto->>Crypto: ECDSA P-256 Signature Generation
-        Crypto-->>MCU: Return 64-byte Crypto Signature
-        deactivate Crypto
-        MCU->>Storage: Append Signed Ledger Entry
+        Note right of Sensor: 2. Cryptographic Ledger
+        MCU->>Storage: Retrieve Previous SHA-256 Hash
+        MCU->>MCU: Calculate New SHA-256(Telemetry + PrevHash)
+        MCU->>Storage: Store New Running Hash (Wear Leveling)
+        MCU->>NFC: Update NDEF Text Record with Crypto Signature
     end
 
     rect rgb(30, 50, 40)
-        Note right of Sensor: 3. Telemetry Transmission Phase
-        alt Threshold Breached
-            MCU->>LoRa: Wake & Load Alert Payload + Signature
-            LoRa->>Dash: LoRaWAN 865MHz Transmission
-            Dash->>Dash: Verify P-256 Signature using PubKey
-            Dash-->>Dash: Trigger Live UI Breach Alarm
+        Note right of Sensor: 3. Telemetry Transmission
+        alt Threshold Breached (e.g. Temp > 8°C)
+            MCU->>Crypto: Request ECDSA P-256 Signature of Hash
+            activate Crypto
+            Crypto-->>MCU: 64-byte Signature
+            deactivate Crypto
+            MCU->>LoRa: Load Cayenne LPP + Signature
+            LoRa->>Gateway: LoRaWAN Class A Transmission (865MHz)
+            Gateway->>Backend: Webhook Forwarding
+            Backend->>Dash: WebSocket Real-time Alert
+            Dash-->>Dash: UI Flash & Red Marker Update
         else Normal Conditions
-            MCU->>MCU: Enter Deep Sleep (RTC Wakeup)
+            MCU->>MCU: Sleep Config: Enter ESP32 Deep Sleep
         end
     end
 ```
+
+---
+
+## Future Industrial Roadmap (Planned Upgrades)
+
+To maintain Cryo Sentinel's position as a cutting-edge enterprise solution, the following advanced upgrades are scheduled for the next hardware revision:
+
+### 1. TinyML Edge Anomaly Detection (Software)
+* **Concept:** Currently, shock detection relies on a rigid G-force threshold from the ADXL345.
+* **Implementation:** We will train a **TensorFlow Lite Micro** (TinyML) model using Edge Impulse. By running the ML model natively on the ESP32-C3, the device will contextually classify accelerometer data. It will intelligently distinguish between normal vibrations (e.g., a truck hitting a pothole) and actual mishandling (e.g., a package being dropped from a forklift), drastically reducing false-positive alerts.
+
+### 2. Supercapacitor Burst Buffering (Hardware)
+* **Concept:** LoRa transmission bursts draw significant peak current (up to 120mA). In cold-chain environments, this can cause severe voltage droop on small LiPo batteries or coin cells, leading to brownouts.
+* **Implementation:** We will add a **470mF Supercapacitor** in parallel with the battery, managed by a buck-boost converter. The supercapacitor acts as an energy buffer, absorbing the massive LoRa current spikes, extending battery life by up to 30%, and ensuring stable operation even in sub-zero pharmaceutical transit environments.
 
 ---
 
