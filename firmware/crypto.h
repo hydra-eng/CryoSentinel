@@ -1,6 +1,6 @@
 /**
  * @file crypto.h
- * @brief CargoPulse v2.0 — ATECC608A Hardware Crypto Interface Header
+ * @brief Cryo Sentinel — ATECC608A Hardware Crypto Interface Header
  *
  * Provides hardware-backed payload signing using ATECC608A secure element.
  * Every LoRa alert payload is signed with the device's private key,

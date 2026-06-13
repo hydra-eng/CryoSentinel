@@ -1,6 +1,6 @@
 /**
  * @file alert.h
- * @brief CargoPulse v2.0 — Breach Detection & LoRa Alert Header
+ * @brief Cryo Sentinel — Breach Detection & LoRa Alert Header
  *
  * Threshold checking and LoRa transmission via SX1262 module.
  * Uses RadioLib for SX1262 driver (MIT License).

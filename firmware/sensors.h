@@ -1,6 +1,6 @@
 /**
  * @file sensors.h
- * @brief CargoPulse v2.0 — Sensor Interface Header
+ * @brief Cryo Sentinel — Sensor Interface Header
  *
  * Provides data structures and function declarations for:
  *   - SHT40 temperature/humidity sensor (I2C 0x44)

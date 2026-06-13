@@ -1,6 +1,6 @@
 /**
  * @file sensors.cpp
- * @brief CargoPulse v2.0 — Sensor Driver Implementations
+ * @brief Cryo Sentinel — Sensor Driver Implementations
  *
  * Implements drivers for:
  *   - Sensirion SHT40 (I2C) — Temperature & Humidity

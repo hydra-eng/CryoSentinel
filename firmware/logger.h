@@ -1,6 +1,6 @@
 /**
  * @file logger.h
- * @brief CargoPulse v2.0 — SPI NOR Flash Circular Log Buffer Header
+ * @brief Cryo Sentinel — SPI NOR Flash Circular Log Buffer Header
  *
  * Provides persistent logging to 4MB SPI NOR flash using a
  * circular buffer with wear leveling via sequential write pointer.
@@ -87,3 +87,9 @@ void clearLog();
  * @return Percentage 0-100
  */
 uint8_t getFlashUsagePct();
+
+/**
+ * @brief Get the current 32-byte running cryptographic hash chain tip
+ * @param hash_buf Output buffer (must be at least 32 bytes)
+ */
+void getRunningHash(uint8_t *hash_buf);

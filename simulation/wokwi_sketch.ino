@@ -1,8 +1,8 @@
 /**
  * @file wokwi_sketch.ino
- * @brief CargoPulse v2.0 — Wokwi ESP32 Simulation Sketch
+ * @brief Cryo Sentinel — Wokwi ESP32 Simulation Sketch
  *
- * Simulates CargoPulse v2.0 cold chain monitoring on Wokwi:
+ * Simulates Cryo Sentinel cold chain monitoring on Wokwi:
  * - Temperature starts at 4.0°C and rises 0.5°C every loop iteration
  * - At 8°C breach threshold: prints alert, simulates RGB RED and buzzer
  * - Continues logging after breach with BREACH flag set
@@ -19,7 +19,7 @@
 
 // =============================================================================
 // WOKWI PIN MAPPING (standard ESP32 DevKit)
-// Mapped to simulate CargoPulse v2.0 hardware behavior
+// Mapped to simulate Cryo Sentinel hardware behavior
 // =============================================================================
 #define SIM_PIN_LED_R       25   // Red LED (simulates RGB Red channel)
 #define SIM_PIN_LED_G       26   // Green LED (simulates RGB Green channel)  
@@ -36,7 +36,7 @@
 #define SIM_HUMIDITY        65.0f   // Fixed simulated humidity (%)
 #define SIM_GPS_LAT         28.6139 // New Delhi, India (Connaught Place)
 #define SIM_GPS_LON         77.2090
-#define SIM_DEVICE_ID       "CP-001"
+#define SIM_DEVICE_ID       "CS-001"
 #define SIM_LOOP_DELAY_MS   2000    // 2s between samples (real: 300s)
 
 // =============================================================================
@@ -112,7 +112,7 @@ void setup() {
     boot_time_ms = millis();
 
     Serial.println("=========================================");
-    Serial.println("  CargoPulse v2.0 — Wokwi Simulation");
+    Serial.println("  Cryo Sentinel — Wokwi Simulation");
     Serial.println("  Device: " SIM_DEVICE_ID);
     Serial.println("  Cold Chain: 2°C – 8°C");
     Serial.println("  LoRa: 865.0 MHz (India)");

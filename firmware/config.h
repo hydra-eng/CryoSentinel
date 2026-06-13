@@ -1,6 +1,6 @@
 /**
  * @file config.h
- * @brief CargoPulse v2.0 — Pin Definitions & Threshold Configuration
+ * @brief Cryo Sentinel — Pin Definitions & Threshold Configuration
  * 
  * All GPIO assignments for ESP32-C3-MINI-1 module.
  * All operational thresholds for cold chain monitoring.
@@ -12,9 +12,9 @@
 // =============================================================================
 // DEVICE IDENTITY
 // =============================================================================
-#define DEVICE_ID           "CP-001"
-#define FW_VERSION          "2.0.0"
-#define HW_VERSION          "v2.0"
+#define DEVICE_ID           "CS-001"
+#define FW_VERSION          "1.0.0"
+#define HW_VERSION          "v1.0"
 
 // =============================================================================
 // I2C BUS PINS (SDA / SCL)

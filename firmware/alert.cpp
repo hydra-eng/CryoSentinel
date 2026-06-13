@@ -1,6 +1,6 @@
 /**
  * @file alert.cpp
- * @brief CargoPulse v2.0 — Breach Detection & LoRa Alert Implementation
+ * @brief Cryo Sentinel — Breach Detection & LoRa Alert Implementation
  *
  * SX1262 driver via RadioLib (https://github.com/jgromes/RadioLib)
  * Configure India 865 MHz ISM band, SF9, BW125kHz, 14dBm.

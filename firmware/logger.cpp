@@ -1,6 +1,6 @@
 /**
  * @file logger.cpp
- * @brief CargoPulse v2.0 — SPI NOR Flash Logger Implementation
+ * @brief Cryo Sentinel — SPI NOR Flash Logger Implementation
  *
  * Uses the SPIFlash library (Mayoogh Girish / Mikal Hart fork compatible with
  * Winbond W25Q32 4MB NOR flash) for low-level read/write/erase.
@@ -15,6 +15,7 @@
 #include "logger.h"
 #include "config.h"
 #include <SPI.h>
+#include <mbedtls/sha256.h>
 // #include <SPIMemory.h>  // TODO: [HARDWARE-TEST] Uncomment when SPIMemory library installed
 
 // =============================================================================
@@ -27,7 +28,7 @@
 #define ENTRY_SIZE          sizeof(LogEntry_t) // Should be 32 bytes
 
 // Flash header magic number to detect first boot vs. valid log
-#define FLASH_MAGIC         0xCF26C3A1  // Magic: CF=CargoPulse, 26=v2.0, C3=ESP32-C3
+#define FLASH_MAGIC         0xCE10C3A1  // Magic: CE=Cryo Sentinel, 10=v1.0, C3=ESP32-C3
 
 // =============================================================================
 // HEADER STRUCTURE (stored at FLASH_HEADER_ADDR)
@@ -47,6 +48,21 @@ typedef struct __attribute__((packed)) {
 static FlashHeader_t header    = {0};
 static bool          flash_ok  = false;
 // static SPIFlash flash(PIN_ADXL_CS); // TODO: [HARDWARE-TEST] Use dedicated flash CS pin
+
+// =============================================================================
+// SECURE LEDGER HASH-CHAINING (SHA-256 context)
+// =============================================================================
+static uint8_t running_hash[32] = {0};
+
+static void calculateSHA256(const uint8_t *data1, size_t len1, const uint8_t *data2, size_t len2, uint8_t *output) {
+    mbedtls_sha256_context ctx;
+    mbedtls_sha256_init(&ctx);
+    mbedtls_sha256_starts_ret(&ctx, 0); // 0 = SHA-256
+    mbedtls_sha256_update_ret(&ctx, data1, len1);
+    mbedtls_sha256_update_ret(&ctx, data2, len2);
+    mbedtls_sha256_finish_ret(&ctx, output);
+    mbedtls_sha256_free(&ctx);
+}
 
 // =============================================================================
 // CRC8 (reused from sensors.cpp — polynomial 0x31)
@@ -133,8 +149,16 @@ bool writeLogEntry(uint32_t timestamp, float temp_c, float humidity,
     sim_write_ptr++;
     sim_entry_count++;
 
+    // Compute cryptographic hash chain: new_hash = SHA256(entry + previous_hash)
+    uint8_t new_hash[32];
+    calculateSHA256((const uint8_t*)&entry, sizeof(LogEntry_t), running_hash, 32, new_hash);
+    memcpy(running_hash, new_hash, 32);
+
     Serial.printf("[LOGGER] Entry #%lu written | T=%.2f°C H=%.1f%% S=%.2fg\n",
                   sim_entry_count, temp_c, humidity, shock_g);
+    Serial.print("[SECURE-LEDGER] Hash Chain: 0x");
+    for (int i = 0; i < 8; i++) Serial.printf("%02X", running_hash[i]);
+    Serial.println("...");
     return true;
 }
 
@@ -164,10 +188,17 @@ void clearLog() {
     memset(sim_flash, 0, sizeof(sim_flash));
     sim_write_ptr   = 0;
     sim_entry_count = 0;
+    memset(running_hash, 0, 32);
     Serial.println("[LOGGER] Log cleared");
     // TODO: [HARDWARE-TEST] flash.eraseChip();
 }
 
 uint8_t getFlashUsagePct() {
     return (uint8_t)((sim_entry_count * 100UL) / SIM_FLASH_ENTRIES);
+}
+
+void getRunningHash(uint8_t *hash_buf) {
+    if (hash_buf != nullptr) {
+        memcpy(hash_buf, running_hash, 32);
+    }
 }

@@ -1,6 +1,6 @@
 /**
  * @file crypto.cpp
- * @brief CargoPulse v2.0 — ATECC608A Hardware Crypto Implementation
+ * @brief Cryo Sentinel — ATECC608A Hardware Crypto Implementation
  *
  * Uses SparkFun ATECC608A library for hardware ECDSA signing.
  * Each device has a unique ECC private key stored in ATECC608A slot 0.

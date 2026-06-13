@@ -1,6 +1,6 @@
 /**
  * @file gps.cpp
- * @brief CargoPulse v2.0 — GPS Implementation (u-blox MAX-M10S via TinyGPS++)
+ * @brief Cryo Sentinel — GPS Implementation (u-blox MAX-M10S via TinyGPS++)
  *
  * Library: TinyGPS++ by Mikal Hart
  * Install: Arduino Library Manager → "TinyGPS++"

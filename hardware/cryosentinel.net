@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>c:\Users\Acer\Downloads\fly\hardware\cargopulse_v2.kicad_sch</source>
+    <source>c:\Users\Acer\Downloads\fly\hardware\cryosentinel.kicad_sch</source>
     <date>2026-06-14T00:25:48</date>
     <tool>Eeschema 10.0.1</tool>
     <sheet number="1" name="/" tstamps="/">
@@ -10,7 +10,7 @@
         <company/>
         <rev/>
         <date/>
-        <source>cargopulse_v2.kicad_sch</source>
+        <source>cryosentinel.kicad_sch</source>
         <comment number="1" value=""/>
         <comment number="2" value=""/>
         <comment number="3" value=""/>
@@ -34,7 +34,7 @@
       </fields>
       <libsource lib="Device" part="LED" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>ff51fedc-4768-4b95-a5d4-1d3304c0e686</tstamps>
       <units>
@@ -56,7 +56,7 @@
       </fields>
       <libsource lib="Device" part="LED" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>22861f4e-2229-4556-b1dd-3f5981d72c6f</tstamps>
       <units>
@@ -78,7 +78,7 @@
       </fields>
       <libsource lib="Device" part="LED" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>5091e21e-f366-482f-98da-3668557f6b6d</tstamps>
       <units>
@@ -100,7 +100,7 @@
       </fields>
       <libsource lib="Device" part="LED" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>35e03240-4183-49f1-8caa-087c097f4490</tstamps>
       <units>
@@ -122,7 +122,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>241b38fd-9fec-4ec3-b479-cb2b8600bad1</tstamps>
       <units>
@@ -144,7 +144,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>fc872a9d-3a67-4a6d-9925-178a78b64c15</tstamps>
       <units>
@@ -166,7 +166,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>7538d860-63ec-4721-a35d-fd1a5580ed40</tstamps>
       <units>
@@ -188,7 +188,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>36337668-31e2-403a-afe2-8d2a522ed460</tstamps>
       <units>
@@ -210,7 +210,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>a929f227-6bb0-4f98-a31d-cc35a3190223</tstamps>
       <units>
@@ -232,7 +232,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>26b7221a-16ac-4a77-b9fd-996ccef7f038</tstamps>
       <units>
@@ -253,7 +253,7 @@
       </fields>
       <libsource lib="Device" part="C" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <property name="exclude_from_bom"/>
       <property name="exclude_from_board"/>
       <property name="dnp"/>
@@ -277,7 +277,7 @@
       </fields>
       <libsource lib="Device" part="LED" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <property name="exclude_from_bom"/>
       <property name="exclude_from_board"/>
       <property name="dnp"/>
@@ -301,7 +301,7 @@
       </fields>
       <libsource lib="Device" part="R" description=""/>
       <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="cargopulse_v2.kicad_sch"/>
+      <property name="Sheetfile" value="cryosentinel.kicad_sch"/>
       <property name="exclude_from_bom"/>
       <property name="exclude_from_board"/>
       <property name="dnp"/>

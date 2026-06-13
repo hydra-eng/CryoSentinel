@@ -1,6 +1,6 @@
 /**
  * @file display.cpp
- * @brief CargoPulse v2.0 — e-ink Display Implementation (GxEPD2)
+ * @brief Cryo Sentinel — e-ink Display Implementation (GxEPD2)
  *
  * Target: 1.54" 200×200 Good Display GDEW0154M09 or compatible
  * Driver IC: SSD1681 (most common for 1.54" B/W e-ink at this resolution)
@@ -72,7 +72,7 @@ void updateDisplay(float temp_c, float humidity_pct,
         // --- Header ---
         display.setFont(&FreeMonoBold9pt7b);
         display.setCursor(5, 18);
-        display.print("CargoPulse v2.0");
+        display.print("Cryo Sentinel");
 
         // Horizontal divider
         display.drawFastHLine(0, 24, 200, GxEPD_BLACK);

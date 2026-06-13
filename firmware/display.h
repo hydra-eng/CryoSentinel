@@ -1,6 +1,6 @@
 /**
  * @file display.h
- * @brief CargoPulse v2.0 — e-ink Display Interface Header
+ * @brief Cryo Sentinel — e-ink Display Interface Header
  *
  * Controls a 1.54" 200×200 e-ink display via GxEPD2 library.
  * Connected via 8-pin FPC connector to ESP32-C3 SPI bus.
@@ -34,7 +34,7 @@ bool initDisplay();
  *
  * Display layout (200×200 px):
  * ┌──────────────────────┐
- * │  CargoPulse v2.0     │
+ * │  Cryo Sentinel       │
  * │  ────────────────    │
  * │  🌡 Temp: 7.4°C     │
  * │  💧 Hum:  63%        │

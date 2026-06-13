@@ -1,6 +1,6 @@
 /**
  * @file main.ino
- * @brief CargoPulse v2.0 — Main Entry Point & State Machine
+ * @brief Cryo Sentinel — Main Entry Point & State Machine
  * 
  * Implements a 5-state machine for cold chain monitoring:
  *   IDLE → SAMPLING → BREACH_ALERT → NFC_SERVE → SLEEP
@@ -27,6 +27,7 @@
 #include "gps.h"
 #include "display.h"
 #include "crypto.h"
+#include "nfc.h"
 
 // =============================================================================
 // GLOBAL STATE
@@ -54,8 +55,8 @@ void setRGB(bool r, bool g, bool b);
 void setup() {
     Serial.begin(115200);
     delay(500); // Allow serial to settle
-    Serial.println("[CargoPulse v2.0] Booting...");
-    Serial.println("[CargoPulse] Device ID: " DEVICE_ID " | FW: " FW_VERSION);
+    Serial.println("[Cryo Sentinel] Booting...");
+    Serial.println("[Cryo Sentinel] Device ID: " DEVICE_ID " | FW: " FW_VERSION);
 
     // --- GPIO setup ---
     pinMode(PIN_RGB_R,   OUTPUT);
@@ -105,6 +106,10 @@ void setup() {
         // TODO: [HARDWARE-TEST] Verify ATECC608A provisioning
     }
 
+    if (!initNFC()) {
+        Serial.println("[ERROR] NFC init failed — dynamic tag offline");
+    }
+
     // Arm tamper detection
     tamperArmed = (digitalRead(PIN_TAMPER) == LOW); // Lid closed at boot = armed
     Serial.print("[TAMPER] Lid state at boot: ");
@@ -114,7 +119,7 @@ void setup() {
     delay(1000);
     setRGB(false, false, false); // Off
 
-    Serial.println("[CargoPulse] Init complete — entering state machine");
+    Serial.println("[Cryo Sentinel] Init complete — entering state machine");
     currentState = STATE_IDLE;
 }
 
@@ -233,6 +238,10 @@ void handleSampling() {
 
     updateDisplay(sensorData.temp_c, sensorData.humidity_pct,
                   bat.soc_pct, displayStatus);
+
+    updateNFCTag(sensorData.temp_c, sensorData.humidity_pct,
+                 gpsData.lat, gpsData.lon,
+                 (breach != BREACH_NONE) ? "BREACH" : "OK");
 }
 
 /**
@@ -301,9 +310,12 @@ void handleNFCServe() {
     Serial.println("[STATE] NFC_SERVE — waiting for NFC read");
     setRGB(false, false, true); // Blue = NFC active
 
-    // TODO: [HARDWARE-TEST] Implement ST25DV NDEF message write with last N entries
-    // Wire.beginTransmission(ADDR_ST25DV);
-    // ... write NDEF records ...
+    // Update NFC tag NDEF payload dynamically with last readings before serving
+    BreachType_t breach = checkThresholds(sensorData);
+    updateNFCTag(sensorData.temp_c, sensorData.humidity_pct,
+                 gpsData.lat, gpsData.lon,
+                 (breach != BREACH_NONE) ? "BREACH" : "OK");
+
     delay(5000); // Hold NFC state for 5s
 
     setRGB(false, false, false);

@@ -1,6 +1,6 @@
 /**
  * @file gps.h
- * @brief CargoPulse v2.0 — GPS Interface Header (u-blox MAX-M10S)
+ * @brief Cryo Sentinel — GPS Interface Header (u-blox MAX-M10S)
  *
  * UART-based GPS via TinyGPS++ library.
  * Library: https://github.com/mikalhart/TinyGPSPlus

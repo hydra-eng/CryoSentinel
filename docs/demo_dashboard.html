@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CargoPulse v2.0 — Live Dashboard Demo</title>
-  <meta name="description" content="CargoPulse v2.0 cold chain monitoring live dashboard — breach visualization with GPS location and timeline.">
+  <title>Cryo Sentinel — Live Dashboard Demo</title>
+  <meta name="description" content="Cryo Sentinel cold chain monitoring live dashboard — breach visualization with GPS location and timeline.">
 
   <!-- Leaflet.js for map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -15,7 +15,7 @@
 
   <style>
     /* =========================================================
-       DESIGN SYSTEM — CargoPulse Dashboard
+       DESIGN SYSTEM — Cryo Sentinel Dashboard
        Colors: Dark Navy + Alert Orange + Status Green/Red
     ========================================================= */
     :root {
@@ -491,8 +491,8 @@
   <div class="header-left">
     <div class="logo">📦</div>
     <div class="header-title">
-      <h1>CargoPulse v2.0 — Live Dashboard</h1>
-      <div class="subtitle">Enterprise Fleet Monitoring · Logistics &amp; Transit · Device: CP-001</div>
+      <h1>Cryo Sentinel — Live Dashboard</h1>
+      <div class="subtitle">Enterprise Fleet Monitoring · Logistics &amp; Transit · Device: CS-001</div>
     </div>
   </div>
   <div class="header-badges">
@@ -773,7 +773,7 @@ function updateClock() {
   const h = ist.getHours().toString().padStart(2, '0');
   const m = ist.getMinutes().toString().padStart(2, '0');
   const s = ist.getSeconds().toString().padStart(2, '0');
-  document.title = `CargoPulse v2.0 [${h}:${m}:${s} IST] — BREACH ACTIVE`;
+  document.title = `Cryo Sentinel [${h}:${m}:${s} IST] — BREACH ACTIVE`;
 }
 
 setInterval(updateClock, 1000);
