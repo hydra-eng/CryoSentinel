@@ -52,7 +52,9 @@ static bool          flash_ok  = false;
 // =============================================================================
 // SECURE LEDGER HASH-CHAINING (SHA-256 context)
 // =============================================================================
-static uint8_t running_hash[32] = {0};
+#include <esp_attr.h>
+RTC_DATA_ATTR static uint8_t running_hash[32] = {0};
+RTC_DATA_ATTR static bool rtc_hash_valid = false;
 
 static void calculateSHA256(const uint8_t *data1, size_t len1, const uint8_t *data2, size_t len2, uint8_t *output) {
     mbedtls_sha256_context ctx;
@@ -113,6 +115,10 @@ bool initLogger() {
     memset(sim_flash, 0, sizeof(sim_flash));
     sim_write_ptr   = 0;
     sim_entry_count = 0;
+    if (!rtc_hash_valid) {
+        memset(running_hash, 0, 32);
+        rtc_hash_valid = true;
+    }
     flash_ok = true;
     Serial.println("[LOGGER] Flash logger initialized (simulation mode)");
     Serial.printf("[LOGGER] Entry size: %d bytes | Max entries: %d\n",

@@ -119,8 +119,14 @@ void setup() {
     delay(1000);
     setRGB(false, false, false); // Off
 
-    Serial.println("[Cryo Sentinel] Init complete — entering state machine");
-    currentState = STATE_IDLE;
+    esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+    if (wakeup_reason == ESP_SLEEP_WAKEUP_TIMER) {
+        Serial.println("[Cryo Sentinel] Woke from deep sleep timer — entering SAMPLING");
+        currentState = STATE_SAMPLING;
+    } else {
+        Serial.println("[Cryo Sentinel] Cold boot init complete — entering IDLE");
+        currentState = STATE_IDLE;
+    }
 }
 
 // =============================================================================
@@ -154,24 +160,20 @@ void loop() {
 // =============================================================================
 
 /**
- * @brief IDLE state — wait for sample interval or NFC poll
- * Normally in deep sleep; wake via RTC timer every LOG_INTERVAL_SEC
+ * @brief IDLE state — enter extreme low power deep sleep
+ * Wakes via RTC timer every LOG_INTERVAL_SEC or via GPIO interrupt
  */
 void handleIdle() {
-    uint32_t now = millis();
-    if (now - lastSampleMs >= (LOG_INTERVAL_SEC * 1000UL)) {
-        Serial.println("[STATE] IDLE → SAMPLING");
-        currentState = STATE_SAMPLING;
-    }
-
-    // TODO: [HARDWARE-TEST] Implement ESP32 deep sleep with RTC wakeup:
-    // esp_sleep_enable_timer_wakeup(LOG_INTERVAL_SEC * 1000000ULL);
-    // esp_deep_sleep_start();
-    // Currently using millis() polling for simulation compatibility
-
-    // Check for NFC field present (ST25DV interrupt — GPIO poll or interrupt)
-    // TODO: [HARDWARE-TEST] Wire ST25DV GPO pin to ESP32 interrupt GPIO
-    delay(100);
+    Serial.println("[STATE] IDLE → Configuring deep sleep");
+    
+    // Configure RTC timer wakeup
+    esp_sleep_enable_timer_wakeup(LOG_INTERVAL_SEC * 1000000ULL);
+    
+    // TODO: Configure ST25DV NFC field detect interrupt wakeup (Ext0)
+    // esp_sleep_enable_ext0_wakeup(PIN_NFC_INT, 1);
+    
+    Serial.println("[STATE] Zzz... entering deep sleep");
+    esp_deep_sleep_start();
 }
 
 /**
@@ -255,28 +257,13 @@ void handleBreachAlert(BreachType_t breach) {
     setRGB(true, false, false); // RED
     digitalWrite(PIN_BUZZER, HIGH);
 
-    // Build JSON payload
-    char payload[512];
-    snprintf(payload, sizeof(payload),
-        "{\"device_id\":\"%s\","
-        "\"breach_type\":%d,"
-        "\"temp_c\":%.2f,"
-        "\"humidity\":%.1f,"
-        "\"shock_g\":%.2f,"
-        "\"lat\":%.6f,"
-        "\"lon\":%.6f,"
-        "\"timestamp\":%lu,"
-        "\"fw\":\"%s\"}",
-        DEVICE_ID, (int)breach,
-        sensorData.temp_c, sensorData.humidity_pct, sensorData.peak_g,
-        gpsData.lat, gpsData.lon,
-        millis() / 1000,
-        FW_VERSION
-    );
+    // Get the current cryptographic ledger hash
+    uint8_t hash_buf[32];
+    getRunningHash(hash_buf);
 
-    // Sign payload with ATECC608A
+    // Sign the ledger hash with ATECC608A secure element
     uint8_t signature[64] = {0};
-    bool signed_ok = signPayload((const uint8_t*)payload, strlen(payload), signature);
+    bool signed_ok = signPayload(hash_buf, 32, signature);
     if (signed_ok) {
         Serial.print("[CRYPTO] Payload signed: 0x");
         for (int i = 0; i < 4; i++) Serial.printf("%02X", signature[i]);

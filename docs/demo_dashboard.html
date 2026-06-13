@@ -779,6 +779,50 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+// ── WEBSOCKET CONNECTION (LIVE BACKEND) ─────────────────
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws`);
+
+ws.onopen = function() {
+    console.log("[Cryo Sentinel] Connected to Live Backend via WebSocket");
+};
+
+ws.onmessage = function(event) {
+    try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'telemetry') {
+            console.log("Live telemetry received:", data);
+            
+            // Update map marker location dynamically
+            const newLatLng = new L.LatLng(data.lat, data.lon);
+            breachMarker.setLatLng(newLatLng);
+            map.panTo(newLatLng);
+            
+            // Update popup content dynamically
+            const popup = breachMarker.getPopup();
+            if (popup) {
+                const currentContent = popup.getContent();
+                const updatedContent = currentContent
+                    .replace(/<span class="row-val">[\d.]+°C<\/span>/, `<span class="row-val">${data.temp_c.toFixed(1)}°C</span>`)
+                    .replace(/<span class="row-val">[\d.]+°N, [\d.]+°E<\/span>/, `<span class="row-val">${data.lat.toFixed(4)}°N, ${data.lon.toFixed(4)}°E</span>`);
+                popup.setContent(updatedContent);
+            }
+            
+            // Dynamically update the main UI metric card if temperature changes
+            const tempDisplay = document.querySelector('.metric-card.breach .metric-value');
+            if (tempDisplay) {
+                tempDisplay.innerText = data.temp_c.toFixed(1) + '°C';
+            }
+        }
+    } catch (e) {
+        console.error("Error parsing websocket message", e);
+    }
+};
+
+ws.onclose = function() {
+    console.warn("Disconnected from backend.");
+};
+
 </script>
 </body>
 </html>

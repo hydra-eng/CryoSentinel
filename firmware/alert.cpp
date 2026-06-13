@@ -103,36 +103,42 @@ bool sendLoRaAlert(BreachType_t breach_type, float temp_c, float lat, float lon)
         delay(500);
     }
 
-    // Build compact JSON payload (keep under 200 bytes for SF9 airtime)
-    char payload[256];
-    const char* breach_str;
-    switch (breach_type) {
-        case BREACH_TEMP_HIGH: breach_str = "TEMP_HIGH"; break;
-        case BREACH_TEMP_LOW:  breach_str = "TEMP_LOW";  break;
-        case BREACH_HUMIDITY:  breach_str = "HUMIDITY";  break;
-        case BREACH_SHOCK:     breach_str = "SHOCK";     break;
-        case BREACH_TAMPER:    breach_str = "TAMPER";    break;
-        default:               breach_str = "UNKNOWN";   break;
-    }
+    // Build Cayenne LPP (Low Power Payload) buffer for LoRaWAN compliance
+    uint8_t payload[64];
+    int len = 0;
 
-    int len = snprintf(payload, sizeof(payload),
-        "{\"id\":\"%s\","
-        "\"bt\":\"%s\","
-        "\"t\":%.2f,"
-        "\"lat\":%.5f,"
-        "\"lon\":%.5f,"
-        "\"ts\":%lu}",
-        DEVICE_ID,
-        breach_str,
-        temp_c,
-        lat, lon,
-        millis() / 1000UL
-    );
+    // 1. Temperature (Channel 1, Type 103 (0x67), 0.1°C signed)
+    int16_t t_val = (int16_t)(temp_c * 10);
+    payload[len++] = 1;
+    payload[len++] = 0x67;
+    payload[len++] = (t_val >> 8) & 0xFF;
+    payload[len++] = t_val & 0xFF;
 
-    Serial.printf("[LORA] Transmitting %d bytes: %s\n", len, payload);
+    // 2. GPS Location (Channel 2, Type 136 (0x88), 0.0001 signed)
+    int32_t lat_val = (int32_t)(lat * 10000);
+    int32_t lon_val = (int32_t)(lon * 10000);
+    int32_t alt_val = 0;
+    payload[len++] = 2;
+    payload[len++] = 0x88;
+    payload[len++] = (lat_val >> 16) & 0xFF;
+    payload[len++] = (lat_val >> 8) & 0xFF;
+    payload[len++] = lat_val & 0xFF;
+    payload[len++] = (lon_val >> 16) & 0xFF;
+    payload[len++] = (lon_val >> 8) & 0xFF;
+    payload[len++] = lon_val & 0xFF;
+    payload[len++] = (alt_val >> 16) & 0xFF;
+    payload[len++] = (alt_val >> 8) & 0xFF;
+    payload[len++] = alt_val & 0xFF;
+
+    // 3. Digital Input for Breach Type (Channel 3, Type 0)
+    payload[len++] = 3;
+    payload[len++] = 0x00;
+    payload[len++] = (uint8_t)breach_type;
+
+    Serial.printf("[LORA] Transmitting %d bytes LPP payload\n", len);
 
     // Transmit packet (blocking until TX complete or timeout)
-    int state = lora.transmit((uint8_t*)payload, len);
+    int state = lora.transmit(payload, len);
 
     if (state == RADIOLIB_ERR_NONE) {
         Serial.println("[LORA] Packet sent successfully");

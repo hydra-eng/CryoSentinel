@@ -8,6 +8,7 @@
 
 #include "nfc.h"
 #include "config.h"
+#include "logger.h"
 #include <Wire.h>
 
 // =============================================================================
@@ -59,13 +60,17 @@ bool initNFC() {
 }
 
 bool updateNFCTag(float temp, float hum, float lat, float lon, const char* status) {
-    char text[128];
+    uint8_t hash_buf[32];
+    getRunningHash(hash_buf);
+
+    char text[160];
     snprintf(text, sizeof(text),
-             "ID:%s | Temp:%.1fC | Hum:%.0f%% | GPS:%.5f,%.5f | Status:%s",
-             DEVICE_ID, temp, hum, lat, lon, status);
+             "ID:%s|T:%.1fC|H:%.0f%%|Loc:%.4f,%.4f|Stat:%s|Sig:%02X%02X%02X%02X",
+             DEVICE_ID, temp, hum, lat, lon, status,
+             hash_buf[0], hash_buf[1], hash_buf[2], hash_buf[3]);
              
     size_t text_len = strlen(text);
-    if (text_len > 120) return false;
+    if (text_len > 150) return false;
 
     // --- NDEF CC File (Capability Container) at offset 0x0000 ---
     // E1: NFC Forum magic
