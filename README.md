@@ -9,6 +9,12 @@ Cryo Sentinel is an industrial-grade, tamper-resistant cold chain tracking devic
 
 ---
 
+## 3D Device Visualization
+
+![Cryo Sentinel 3D PCB Render](docs/images/pcb_3d_render.png)
+
+---
+
 ## The Cryo Sentinel Advantage
 
 In traditional cold chain logistics, temperature breaches are discovered only at the destination when the logger is plugged into a USB port. At that stage, the entire shipment is already spoiled, resulting in substantial financial losses and public health risks. 
@@ -51,6 +57,17 @@ The ST25DV Dynamic NFC Tag harvests RF power from a smartphone's NFC field, prov
 
 ---
 
+## Zen Engineering & Industrial Design
+
+Cryo Sentinel follows four core tenets of industrial design harmony and engineering precision:
+
+* **Minimalism in Energy (Active Rail Power-Gating)**: The environmental sensors (SHT40, ADXL345) and the u-blox MAX-M10S GPS are connected to a dedicated 3.3V power rail controlled by a P-channel MOSFET switch (DMG2305UX). During deep sleep (`STATE_IDLE`), the MCU cuts the rail entirely, reducing quiescent leakage current across all peripherals to under 1µA.
+* **Environmental Resilience (Gore-Tex Equalization Vent)**: To measure temperature and humidity accurately, the device enclosure features a dual-purpose Gore pressure equalization vent. This allows ambient moisture and temperature gradients to balance quickly without exposing the main PCB layout to liquid water or dust, achieving an IP67 rating.
+* **Dual RF Coplanar Waveguide Design**: The LoRa (865 MHz) and GPS RF lines are routed using grounded coplanar waveguides designed with a target 50-ohm characteristic impedance on a standard 1.6mm FR-4 substrate. This prevents RF signal attenuation and harmonic cross-talk between high-frequency GPS and LoRa transceivers.
+* **Dual-State Dynamic NFC Interfacing**: When the primary battery is healthy, the tag acts as an active mailbox, serving real-time parameters. When the battery is drained, the tag switches to passive mode, drawing energy from a scanning device to feed audit details from non-volatile EEPROM.
+
+---
+
 ## System Architecture
 
 ### Hardware Block Diagram
@@ -89,11 +106,18 @@ The dashboard displays real-time state changes as the cargo travels, transitioni
 | :---: | :---: | :---: |
 | ![Timeline Normal](docs/images/media_1.png) | ![Timeline Warning](docs/images/media_2.png) | ![Timeline Breach](docs/images/media_3.png) |
 
-#### 🔧 Hardware Project Layout
-KiCad schematic, layout, and board renders are available in the [hardware/](hardware/) directory.
+#### 🔌 PCB Design & Schematic Layout
+* **Schematic Design Layout**: Below is the fully updated schematic overview for pinouts, bus routing, and secure element integration.
+  
+  ![Cryo Sentinel Schematic](docs/images/cryosentinel_schematic.svg)
 
-* **Schematic Layout**: Check the [Schematic SVG](docs/images/cryosentinel_schematic.svg) for pinouts and bus routings.
-* **PCB Layout**: Check the [PCB 2D Renders](docs/images/cryosentinel_2d_view.png) for footprints and board dimensions.
+* **PCB Layout View**: Rendered 2D board view demonstrating compact trace routing, component grouping, and antenna placement.
+  
+  ![Cryo Sentinel 2D PCB Layout](docs/images/cryosentinel_2d_view.png)
+
+* **3D CAD Integration Models**: The physical dimensions and 3D step designs are saved directly under the [hardware/](hardware/) folder.
+  * STEP Mechanical Model: [cryosentinel.step](hardware/cryosentinel.step) (ideal for enclosure fitting)
+  * VRML Render Model: [cryosentinel.wrl](hardware/cryosentinel.wrl)
 
 ---
 
