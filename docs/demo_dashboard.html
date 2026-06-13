@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CargoPulse v2.0 — Live Dashboard Demo</title>
+  <meta name="description" content="CargoPulse v2.0 cold chain monitoring live dashboard — breach visualization with GPS location and timeline. FAR AWAY 2026 Hackathon.">
+
+  <!-- Leaflet.js for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       DESIGN SYSTEM — CargoPulse Dashboard
+       Colors: Dark Navy + Alert Orange + Status Green/Red
+    ========================================================= */
+    :root {
+      --navy-900: #0a0e1a;
+      --navy-800: #111827;
+      --navy-700: #1a2236;
+      --navy-600: #243047;
+      --navy-500: #334155;
+      --orange-500: #f97316;
+      --orange-400: #fb923c;
+      --orange-300: #fed7aa;
+      --red-500:    #ef4444;
+      --red-400:    #f87171;
+      --green-500:  #22c55e;
+      --green-400:  #4ade80;
+      --yellow-400: #facc15;
+      --blue-400:   #60a5fa;
+      --white:      #f8fafc;
+      --gray-300:   #cbd5e1;
+      --gray-500:   #64748b;
+
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--navy-900);
+      color: var(--white);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────── */
+    header {
+      background: var(--navy-800);
+      border-bottom: 1px solid var(--navy-600);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: var(--orange-500);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      animation: pulse-logo 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); }
+    }
+
+    .header-title h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .header-title .subtitle {
+      font-size: 0.72rem;
+      color: var(--gray-500);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .badge-orange {
+      background: rgba(249,115,22,0.15);
+      color: var(--orange-400);
+      border: 1px solid rgba(249,115,22,0.3);
+    }
+
+    .badge-red {
+      background: rgba(239,68,68,0.15);
+      color: var(--red-400);
+      border: 1px solid rgba(239,68,68,0.3);
+      animation: badge-flash 1.5s ease-in-out infinite;
+    }
+
+    @keyframes badge-flash {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+
+    /* ─── MAIN LAYOUT ─────────────────────────────────────── */
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ─── LEFT SIDEBAR — TIMELINE & METRICS ──────────────── */
+    .sidebar {
+      width: 360px;
+      background: var(--navy-800);
+      border-right: 1px solid var(--navy-600);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      margin: 16px 16px 0;
+      background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(249,115,22,0.15));
+      border: 1px solid var(--red-500);
+      border-radius: 12px;
+      padding: 16px;
+      animation: slide-in 0.5s ease-out;
+    }
+
+    @keyframes slide-in {
+      from { transform: translateX(-20px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    .alert-banner .alert-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .alert-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--red-500);
+      border-radius: 50%;
+      animation: badge-flash 1s ease-in-out infinite;
+    }
+
+    .alert-banner h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--red-400);
+    }
+
+    .alert-info {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gray-300);
+      line-height: 1.6;
+    }
+
+    .alert-info span.val {
+      color: var(--orange-400);
+      font-weight: 600;
+    }
+
+    /* Metrics Grid */
+    .metrics-section {
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric-card {
+      background: var(--navy-700);
+      border: 1px solid var(--navy-600);
+      border-radius: 10px;
+      padding: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .metric-card:hover {
+      border-color: var(--navy-500);
+    }
+
+    .metric-card .metric-label {
+      font-size: 0.65rem;
+      color: var(--gray-500);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .metric-card .metric-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+
+    .metric-card .metric-unit {
+      font-size: 0.7rem;
+      color: var(--gray-500);
+      margin-top: 2px;
+    }
+
+    .metric-card.breach {
+      border-color: rgba(239,68,68,0.5);
+      background: rgba(239,68,68,0.08);
+    }
+
+    .metric-card.breach .metric-value {
+      color: var(--red-400);
+    }
+
+    .metric-card.ok .metric-value {
+      color: var(--green-400);
+    }
+
+    .metric-card.warning .metric-value {
+      color: var(--yellow-400);
+    }
+
+    /* ─── TIMELINE ─────────────────────────────────────────── */
+    .timeline-section {
+      padding: 0 16px 16px;
+      flex: 1;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--green-500), var(--yellow-400), var(--red-500));
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+      animation: fade-up 0.4s ease-out both;
+    }
+
+    .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.5s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.7s; }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -20px;
+      top: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--navy-800);
+      z-index: 1;
+    }
+
+    .timeline-dot.dot-green  { background: var(--green-500); }
+    .timeline-dot.dot-yellow { background: var(--yellow-400); }
+    .timeline-dot.dot-red    { background: var(--red-500); box-shadow: 0 0 8px var(--red-500); }
+
+    .timeline-item .tl-time {
+      font-size: 0.65rem;
+      color: var(--gray-500);
+      font-family: var(--font-mono);
+      margin-bottom: 2px;
+    }
+
+    .timeline-item .tl-event {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .timeline-item .tl-detail {
+      font-size: 0.72rem;
+      color: var(--gray-300);
+      line-height: 1.4;
+    }
+
+    .tl-event.green  { color: var(--green-400); }
+    .tl-event.yellow { color: var(--yellow-400); }
+    .tl-event.red    { color: var(--red-400); }
+
+    /* ─── MAP ─────────────────────────────────────────────── */
+    #map {
+      flex: 1;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* Map overlay stats */
+    .map-overlay {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .map-stat-card {
+      background: rgba(10,14,26,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--navy-600);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+    }
+
+    .map-stat-card .stat-icon { font-size: 1.1rem; }
+    .map-stat-card .stat-info .stat-label { color: var(--gray-500); font-size: 0.62rem; }
+    .map-stat-card .stat-info .stat-val { color: var(--white); font-weight: 600; font-family: var(--font-mono); }
+
+    /* Device info overlay top-left */
+    .map-device-info {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(10,14,26,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--orange-500);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 0.75rem;
+    }
+
+    .map-device-info .dev-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--orange-400);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-device-info .dev-detail {
+      color: var(--gray-300);
+      line-height: 1.8;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+
+    .map-device-info .dev-detail span { color: var(--orange-300); }
+
+    /* Leaflet popup custom style */
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: var(--navy-800);
+      border: 1px solid var(--red-500);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      color: var(--white);
+      padding: 0;
+    }
+
+    .custom-popup .leaflet-popup-content {
+      margin: 0;
+      padding: 0;
+    }
+
+    .custom-popup .leaflet-popup-tip-container {
+      display: none;
+    }
+
+    .popup-inner {
+      padding: 16px 20px;
+      min-width: 260px;
+    }
+
+    .popup-inner .popup-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--red-400);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .popup-inner .popup-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--navy-600);
+    }
+
+    .popup-inner .popup-row:last-child { border-bottom: none; }
+    .popup-inner .popup-row .row-label { color: var(--gray-500); }
+    .popup-inner .popup-row .row-val   { color: var(--orange-300); font-family: var(--font-mono); font-weight: 600; }
+
+    /* Breach marker custom icon */
+    .breach-marker-icon {
+      background: var(--red-500);
+      border: 3px solid var(--red-400);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      box-shadow: 0 0 20px rgba(239,68,68,0.7), 0 0 40px rgba(239,68,68,0.3);
+      animation: marker-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes marker-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.6), 0 0 20px rgba(239,68,68,0.3); transform: scale(1); }
+      50%       { box-shadow: 0 0 20px rgba(239,68,68,0.9), 0 0 40px rgba(239,68,68,0.5); transform: scale(1.1); }
+    }
+
+    /* Scrollbar styling */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--navy-500); border-radius: 2px; }
+  </style>
+</head>
+
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <div class="header-left">
+    <div class="logo">📦</div>
+    <div class="header-title">
+      <h1>CargoPulse v2.0 — Live Dashboard</h1>
+      <div class="subtitle">FAR AWAY 2026 Hackathon · Logistics &amp; Transit · Device: CP-001</div>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-orange">865 MHz LoRa</span>
+    <span class="badge badge-orange">India</span>
+    <span class="badge badge-red" id="breach-badge">⚠ BREACH</span>
+  </div>
+</header>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main-content">
+
+  <!-- ── SIDEBAR ─────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Alert Banner -->
+    <div class="alert-banner">
+      <div class="alert-header">
+        <div class="alert-dot"></div>
+        <h2>TEMPERATURE BREACH DETECTED</h2>
+      </div>
+      <div class="alert-info">
+        <div>Device &nbsp;: <span class="val">CP-001</span></div>
+        <div>Temp &nbsp;&nbsp;: <span class="val">8.2°C</span> (limit: 8.0°C)</div>
+        <div>Location: <span class="val">28.6139°N, 77.2090°E</span></div>
+        <div>LoRa TX : <span class="val">SENT (865 MHz)</span></div>
+        <div>Sig &nbsp;&nbsp;&nbsp;: <span class="val">0xA3F2C3D1...</span></div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-section">
+      <div class="section-title">Live Readings</div>
+      <div class="metrics-grid">
+        <div class="metric-card breach">
+          <div class="metric-label">Temperature</div>
+          <div class="metric-value">8.2</div>
+          <div class="metric-unit">°C &nbsp; limit: 8.0°C</div>
+        </div>
+        <div class="metric-card ok">
+          <div class="metric-label">Humidity</div>
+          <div class="metric-value">65</div>
+          <div class="metric-unit">% RH</div>
+        </div>
+        <div class="metric-card ok">
+          <div class="metric-label">Shock</div>
+          <div class="metric-value">1.2</div>
+          <div class="metric-unit">g peak (limit: 3g)</div>
+        </div>
+        <div class="metric-card warning">
+          <div class="metric-label">Battery</div>
+          <div class="metric-value">73</div>
+          <div class="metric-unit">% SOC · 3.84V</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-section">
+      <div class="section-title">Event Timeline</div>
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-green"></div>
+          <div class="tl-time">14 Jun 2026 &nbsp; 08:00 IST</div>
+          <div class="tl-event green">Shipment Started</div>
+          <div class="tl-detail">Device activated · Temp: 4.1°C · Sensor check OK</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-green"></div>
+          <div class="tl-time">14 Jun 2026 &nbsp; 09:15 IST</div>
+          <div class="tl-event green">Normal — In Transit</div>
+          <div class="tl-detail">Temp: 5.8°C · Hum: 62% · GPS fix: 28.5871, 77.1803</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-yellow"></div>
+          <div class="tl-time">14 Jun 2026 &nbsp; 10:01 IST</div>
+          <div class="tl-event yellow">Warning — Temperature Rising</div>
+          <div class="tl-detail">Temp: 7.6°C · Approaching 8°C limit · LoRa warning sent</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot dot-red"></div>
+          <div class="tl-time">14 Jun 2026 &nbsp; 10:34 IST</div>
+          <div class="tl-event red">⚠ BREACH — Temperature Exceeded</div>
+          <div class="tl-detail">
+            Temp: 8.2°C · Breach at 28.6139°N, 77.2090°E<br>
+            LoRa alert sent · Sig: 0xA3F2C3D1<br>
+            Driver notified via display · RGB: RED · Buzzer: ON
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAP ─────────────────────── -->
+  <div id="map" style="position:relative;">
+
+    <!-- Device Info Overlay -->
+    <div class="map-device-info">
+      <div class="dev-title">📡 Device CP-001</div>
+      <div class="dev-detail">
+        Last GPS &nbsp;: <span>28.6139°N, 77.2090°E</span><br>
+        LoRa RSSI : <span>-87 dBm</span><br>
+        Fix Quality: <span>GPS (sats: 8)</span><br>
+        Uptime &nbsp;&nbsp;&nbsp;: <span>2h 34m</span>
+      </div>
+    </div>
+
+    <!-- Stats Overlay -->
+    <div class="map-overlay">
+      <div class="map-stat-card">
+        <span class="stat-icon">🌡</span>
+        <div class="stat-info">
+          <div class="stat-label">TEMPERATURE</div>
+          <div class="stat-val">8.2°C &nbsp; BREACH</div>
+        </div>
+      </div>
+      <div class="map-stat-card">
+        <span class="stat-icon">🛰</span>
+        <div class="stat-info">
+          <div class="stat-label">GPS LOCATION</div>
+          <div class="stat-val">28.6139, 77.2090</div>
+        </div>
+      </div>
+      <div class="map-stat-card">
+        <span class="stat-icon">📶</span>
+        <div class="stat-info">
+          <div class="stat-label">LORA LINK</div>
+          <div class="stat-val">865 MHz · -87 dBm</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// LEAFLET MAP INITIALIZATION
+// Centered on Delhi, India — Connaught Place breach location
+// ═══════════════════════════════════════════════════════
+
+const BREACH_LAT = 28.6139;
+const BREACH_LON = 77.2090;
+const ORIGIN_LAT = 28.5355;
+const ORIGIN_LON = 77.3910;
+
+// Initialize map centered on Delhi
+const map = L.map('map', {
+  center: [28.575, 77.25],
+  zoom: 12,
+  zoomControl: false
+});
+
+// Dark tile layer (Carto Dark Matter — free, no key needed)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 20
+}).addTo(map);
+
+// Add zoom control to top-right
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+// ── BREACH MARKER (pulsing red) ──────────────────────────
+const breachIcon = L.divIcon({
+  html: '<div class="breach-marker-icon"></div>',
+  className: '',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+const breachMarker = L.marker([BREACH_LAT, BREACH_LON], { icon: breachIcon }).addTo(map);
+
+// Custom popup
+const popupContent = `
+  <div class="popup-inner">
+    <div class="popup-title">⚠ BREACH DETECTED</div>
+    <div class="popup-row">
+      <span class="row-label">Temperature</span>
+      <span class="row-val">8.2°C</span>
+    </div>
+    <div class="popup-row">
+      <span class="row-label">Date &amp; Time</span>
+      <span class="row-val">14 Jun 2026 10:34 IST</span>
+    </div>
+    <div class="popup-row">
+      <span class="row-label">Device</span>
+      <span class="row-val">CP-001</span>
+    </div>
+    <div class="popup-row">
+      <span class="row-label">GPS</span>
+      <span class="row-val">28.6139°N, 77.2090°E</span>
+    </div>
+    <div class="popup-row">
+      <span class="row-label">LoRa RSSI</span>
+      <span class="row-val">-87 dBm</span>
+    </div>
+    <div class="popup-row">
+      <span class="row-label">Signature</span>
+      <span class="row-val">0xA3F2C3D1...</span>
+    </div>
+  </div>
+`;
+
+breachMarker.bindPopup(popupContent, {
+  className: 'custom-popup',
+  maxWidth: 300,
+  closeButton: true,
+  autoClose: false,
+  closeOnClick: false
+}).openPopup();
+
+// ── ORIGIN MARKER ──────────────────────────────────────
+const originIcon = L.circleMarker([ORIGIN_LAT, ORIGIN_LON], {
+  radius: 8,
+  fillColor: '#22c55e',
+  color: '#4ade80',
+  weight: 2,
+  opacity: 1,
+  fillOpacity: 0.8
+}).addTo(map);
+
+originIcon.bindPopup(`
+  <div class="popup-inner">
+    <div class="popup-title" style="color: #4ade80;">🟢 SHIPMENT ORIGIN</div>
+    <div class="popup-row"><span class="row-label">Location</span><span class="row-val">Okhla IDA, Delhi</span></div>
+    <div class="popup-row"><span class="row-label">Departed</span><span class="row-val">08:00 IST</span></div>
+    <div class="popup-row"><span class="row-label">Temp at start</span><span class="row-val">4.1°C ✓</span></div>
+  </div>
+`, { className: 'custom-popup' });
+
+// ── ROUTE LINE ─────────────────────────────────────────
+const routeCoords = [
+  [ORIGIN_LAT, ORIGIN_LON],
+  [28.555, 77.32],
+  [28.578, 77.285],
+  [28.6139, 77.2090]
+];
+
+const normalRoute = L.polyline(routeCoords.slice(0, 3), {
+  color: '#22c55e',
+  weight: 3,
+  opacity: 0.7,
+  dashArray: '8, 4'
+}).addTo(map);
+
+const breachRoute = L.polyline([routeCoords[2], routeCoords[3]], {
+  color: '#ef4444',
+  weight: 4,
+  opacity: 0.9,
+  dashArray: null
+}).addTo(map);
+
+// ── ANIMATE BREACH MARKER PULSE ────────────────────────
+let scale = 1;
+let growing = true;
+
+setInterval(() => {
+  if (growing) {
+    scale += 0.05;
+    if (scale >= 1.3) growing = false;
+  } else {
+    scale -= 0.05;
+    if (scale <= 1.0) growing = true;
+  }
+}, 50);
+
+// ── LIVE CLOCK ──────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const ist = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+  const h = ist.getHours().toString().padStart(2, '0');
+  const m = ist.getMinutes().toString().padStart(2, '0');
+  const s = ist.getSeconds().toString().padStart(2, '0');
+  document.title = `CargoPulse v2.0 [${h}:${m}:${s} IST] — BREACH ACTIVE`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+</script>
+</body>
+</html>
