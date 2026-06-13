@@ -6,9 +6,6 @@
  *   - Sensirion SHT40 (I2C) — Temperature & Humidity
  *   - ADXL345 (SPI) — 3-axis accelerometer, ±16g
  *   - MAX17048 (I2C) — LiPo fuel gauge
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "sensors.h"

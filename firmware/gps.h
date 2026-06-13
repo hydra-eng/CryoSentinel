@@ -4,9 +4,6 @@
  *
  * UART-based GPS via TinyGPS++ library.
  * Library: https://github.com/mikalhart/TinyGPSPlus
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

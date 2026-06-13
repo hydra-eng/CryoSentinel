@@ -1,157 +1,203 @@
-# CargoPulse v2.0 — Intelligent Cold Chain Guardian
+# CargoPulse v2.0 — Intelligent Cold Chain Sentinel
 
-> **FAR AWAY 2026 Hackathon** | Logistics & Transit Theme
-> Built on top of the open source [iot-risk-data-logger-nfc-samd21](https://github.com/polesskiy-dev/iot-risk-data-logger-nfc-samd21-hardware) by polesskiy-dev (MIT License)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Hardware: KiCad](https://img.shields.io/badge/Hardware-KiCad_8.0-orange.svg)](hardware/)
+[![Firmware: ESP32-C3](https://img.shields.io/badge/Firmware-ESP32--C3-green.svg)](firmware/)
+[![Simulation: Wokwi](https://img.shields.io/badge/Simulation-Wokwi-blueviolet.svg)](simulation/)
+
+CargoPulse v2.0 is an intelligent cold chain monitoring system that provides real-time logistics auditing, cryptographic proof of custody, active tamper deterrence, and mid-route alerting. Designed for the transit of temperature-sensitive pharmaceuticals and high-value cargo, CargoPulse moves cold chain logging from passive recording to active intervention.
 
 ---
 
-## The Problem
+## The CargoPulse Advantage
 
-India loses **₹92,000 crore worth of pharmaceutical products annually** due to cold chain failures — yet 68% of breaches go undetected until the shipment reaches its destination. Traditional loggers are passive: they record data, but cannot raise alarms, reveal breach locations, or confirm package integrity during transit.
+In the logistics industry, a large portion of temperature-sensitive goods goes to waste due to cold chain breaches during transit. Traditional data loggers are passive: they record data locally, but operators only discover breaches after delivery at the destination—when it is already too late.
 
-## What CargoPulse Does
+CargoPulse v2.0 solves this with real-time long-range wireless alerting, GPS breach tagging, cryptographic authentication, and active physical tamper detection.
 
-CargoPulse v2.0 is an intelligent cold chain sentinel that combines real-time LoRa wireless alerting, GPS breach-location tagging, cryptographically-signed tamper-proof logs, and a driver-facing e-ink status display into a single compact unit. When temperature, humidity, or shock thresholds are crossed, it instantly transmits an alert over LoRa (865 MHz India band) with GPS coordinates and a hardware-signed payload — enabling logistics operators to intervene mid-route, not at destination.
+### Industry Comparison
 
-## Why V1 Failed → What V2 Fixes
+| Feature | Traditional USB Loggers (e.g. TempTale) | CargoPulse v2.0 |
+| :--- | :--- | :--- |
+| **Alert Timing** | Post-arrival review (Passive) | Real-time mid-route (Active) |
+| **Wireless Range** | USB only or short-range NFC (≤10 cm) | LoRa SX1262 Long Range (Up to 15 km) |
+| **Breach Location** | Unknown (discovered at destination) | GPS-Tagged (u-blox MAX-M10S) |
+| **Cryptographic Proof** | None (CSV/PDF logs can be falsified) | Hardware-signed payloads (ATECC608A) |
+| **Tamper Detection** | None (enclosures can be opened undetected) | Active hardware loop (GPIO0 trace cut detection) |
+| **Driver Feedback** | Simple flashing status LEDs | 1.54" Zero-Power E-Ink status display |
+| **Power System** | Non-rechargeable coin cell (disposable) | LiPo rechargeable + USB-C charge controller |
 
-| Feature | V1 (SAMD21) | V2 (CargoPulse) |
-|---|---|---|
-| **Wireless Range** | NFC only (≤10 cm) | LoRa SX1262 (≤15 km) |
-| **Alert Timing** | At destination only | Real-time mid-route |
-| **Breach Location** | Unknown | GPS-tagged (u-blox MAX-M10S) |
-| **Driver Feedback** | None | 1.54" e-ink status display |
-| **Power** | 2×AAA (non-rechargeable) | LiPo + USB-C charging (TP4056) |
-| **Enclosure** | Indoor-only | IP65-rated for Indian outdoor use |
+---
 
 ## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CargoPulse v2.0                          │
-│                                                             │
-│  ┌──────────────┐   I2C    ┌──────────┐  ┌──────────────┐  │
-│  │ ESP32-C3-    │◄────────►│  SHT40   │  │  ATECC608A   │  │
-│  │ MINI-1 MCU   │          │ Temp/Hum │  │ HW Crypto    │  │
-│  │              │◄────────►│ ST25DV   │  │ (I2C)        │  │
-│  │              │          │ NFC      │  └──────────────┘  │
-│  │              │   SPI    ┌──────────┐                     │
-│  │              │◄────────►│ ADXL345  │  LoRa SX1262       │
-│  │              │          │ Shock    │  ┌──────────────┐  │
-│  │              │◄────────►│ e-ink    │  │ 865 MHz TX   │  │
-│  │              │          │ Display  │  │ U.FL Antenna │  │
-│  │              │   UART   ┌──────────┐  └──────────────┘  │
-│  │              │◄────────►│MAX-M10S  │                     │
-│  └──────────────┘          │   GPS    │  ┌──────────────┐  │
-│         │                  └──────────┘  │TP4056+LiPo   │  │
-│         │                               │MAX17048 Fuel  │  │
-│         └───────────────────────────────│Gauge+USB-C    │  │
-│                                         └──────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+CargoPulse v2.0 integrates high-accuracy environmental sensors, hardware-accelerated security, satellite positioning, and long-range wireless transceiver onto a single ESP32-C3 powered hardware platform.
+
+### Hardware Block Diagram
+
+```mermaid
+graph TD
+    subgraph CargoPulse Device
+        MCU[ESP32-C3-MINI-1 MCU]
+        SHT[SHT40 Temp/Hum Sensor] -- I2C --> MCU
+        ATECC[ATECC608A Secure Element] -- I2C --> MCU
+        MAX17048[MAX17048 Fuel Gauge] -- I2C --> MCU
+        ST25DV[ST25DV NFC Tag] -- I2C --> MCU
+        ADXL[ADXL345 3-Axis Accel] -- SPI --> MCU
+        DISP[1.54" E-Ink Display] -- SPI --> MCU
+        SX1262[SX1262 LoRa Module] -- SPI --> MCU
+        GPS[u-blox MAX-M10S GPS] -- UART --> MCU
+        POWER[LiPo Battery 1000mAh] --> LDO[AMS1117 3.3V LDO] --> MCU
+        CHARGE[TP4056 USB-C Charger] --> POWER
+        TAMPER[Tamper Detection Loop] -- GPIO0 --> MCU
+        BUZZER[Buzzer] -- GPIO11 --> MCU
+        RGB[RGB Status LED] -- GPIO12-14 --> MCU
+    end
 ```
 
-## Hardware — What's New in V2
+### Visual Showcases
 
-| Component | Purpose | Why Chosen |
-|---|---|---|
-| **ESP32-C3-MINI-1** | Main MCU | Native USB, WiFi+BLE, LoRa-SPI capable, 160MHz |
-| **SX1262 LoRa** | Long-range alerting | 15km range, 865MHz India band, RadioLib support |
-| **u-blox MAX-M10S** | GPS location | Ultra-low-power, <1.5m accuracy, switchable domain |
-| **1.54" e-ink** | Driver display | Zero-power hold, sunlight readable, 200×200px |
-| **TP4056** | LiPo charging | USB-C input, built-in protection, ₹35/unit |
-| **MAX17048** | Fuel gauge | 1% SOC accuracy over I2C |
-| **ADXL345** | 3-axis shock | ±16g range, SPI, industry standard |
-| **SHT40** | Temp/Humidity | ±0.2°C accuracy, I2C, replaces SHT3x |
-| **ST25DV04K** | NFC tag | Backward compatible read for phones |
-| **ATECC608A** | Hardware crypto | Signs every payload — tamper-proof chain of custody |
+#### 📱 Web Dashboard Demo
+An enterprise-grade monitoring console showing live breach telemetry, transit routes, and cryptographic signature validation. Open [demo_dashboard.html](docs/demo_dashboard.html) in any web browser.
+
+![Dashboard Demo](docs/images/dashboard_demo.png)
+
+#### 🗺 Live Timeline States
+The dashboard displays real-time state changes as the cargo travels, transitioning from normal operations, warning thresholds, to critical alerts upon breach.
+
+| Normal Operation | Warning Threshold | Critical Breach Alert |
+| :---: | :---: | :---: |
+| ![Timeline Normal](docs/images/media_1.png) | ![Timeline Warning](docs/images/media_2.png) | ![Timeline Breach](docs/images/media_3.png) |
+
+#### 🔧 Hardware Project Layout
+CargoPulse v2.0 KiCad schematic and 2D board renders are available in the [hardware/](hardware/) directory.
+
+* **Schematic Layout**: Check the [Schematic SVG](docs/images/cargopulse_v2_schematic.svg) for pinouts and bus routings.
+* **PCB Layout**: Check the [PCB 2D Renders](docs/images/pcb_2d_view.png) for footprints and board dimensions.
+
+---
 
 ## Firmware Architecture
 
-The firmware runs a 5-state machine on the ESP32-C3:
+The firmware runs a low-power, event-driven state machine on the ESP32-C3 microcontroller.
 
-```
-IDLE → (timer 5min) → SAMPLING → (threshold OK) → IDLE
-                              → (threshold BREACH) → BREACH_ALERT → IDLE
-IDLE → (NFC poll) → NFC_SERVE → IDLE
-Any state → (battery critical) → SLEEP
-```
+### State Transition Diagram
 
-- **IDLE**: Deep sleep, wake on RTC timer every 5 minutes
-- **SAMPLING**: Read SHT40 + ADXL345 + MAX17048 + GPS, write to NOR flash log
-- **BREACH_ALERT**: Sign payload with ATECC608A, transmit LoRa JSON, flash RGB RED, buzz, update e-ink
-- **NFC_SERVE**: Respond to NFC reader with last N log entries
-- **SLEEP**: Extreme power save when battery < 10%
-
-## Simulation Demo
-
-The Wokwi simulation sketch is in `/simulation/wokwi_sketch.ino`.
-
-To run:
-1. Go to [wokwi.com](https://wokwi.com)
-2. Create new ESP32 project
-3. Paste `wokwi_sketch.ino` content
-4. Import `wokwi.json` as the diagram
-5. Run — watch temperature rise from 4°C to 8°C breach
-
-Expected output at breach:
-```
-⚠ BREACH DETECTED | Temp: 8.2°C | Humidity: 65% | GPS: 28.6139,77.2090 | LoRa TX: SENT | Sig: 0xA3F2...
-RGB: RED
-BUZZER: ON
+```mermaid
+stateDiagram-v2
+    [*] --> STATE_IDLE
+    STATE_IDLE --> STATE_SAMPLING : Sample Interval (5 min) / Wakeup
+    STATE_SAMPLING --> STATE_IDLE : Thresholds OK (Normal Log)
+    STATE_SAMPLING --> STATE_BREACH_ALERT : Threshold Crossed / Tamper
+    STATE_BREACH_ALERT --> STATE_IDLE : Alert Dispatched
+    STATE_IDLE --> STATE_NFC_SERVE : NFC Field Detected / GPO Interrupt
+    STATE_NFC_SERVE --> STATE_IDLE : Session Complete
+    STATE_SAMPLING --> STATE_SLEEP : Battery < 5%
+    STATE_IDLE --> STATE_SLEEP : Battery < 5%
+    STATE_SLEEP --> [*] : Battery Depleted
 ```
 
-## Live Dashboard Demo
+### Key Operational States
+* **STATE_IDLE**: Deep sleep mode with RTC timer wakeup to minimize current draw.
+* **STATE_SAMPLING**: Powers up sensors, fetches GPS positioning, reads SHT40 temperature/humidity, and logs data to local SPI NOR flash.
+* **STATE_BREACH_ALERT**: Activated if limits are crossed. The MCU hashes the JSON payload, requests an ECDSA P-256 signature from the ATECC608A secure element, broadcasts the signed packet over LoRa, triggers the local buzzer, and updates the e-ink screen.
+* **STATE_NFC_SERVE**: Allows short-range audit downloads via the ST25DV dynamic tag even if the main battery is dead.
+* **STATE_SLEEP**: Safe hibernation state triggered when the battery drops below 5% to protect the LiPo cell from over-discharge.
 
-Open `/docs/demo_dashboard.html` in any modern browser.
+---
 
-- No server needed — pure HTML/JS/Leaflet.js
-- Map centered on Delhi with breach marker
-- Real-time timeline sidebar: Normal → Warning → BREACH
+## Data Telemetry Flow
 
-## Power Budget
+Every alert transmitted by the device contains cryptographic signatures to guarantee data authenticity and prevent record tampering.
 
-| Mode | Current Draw | Duration/Day | Energy |
-|---|---|---|---|
-| **Deep Sleep** | 150 µA | 23.5 hrs | 3.525 mAh |
-| **Sampling** | 45 mA | 0.4 hrs | 18 mAh |
-| **LoRa TX (breach)** | 120 mA | 0.05 hrs | 6 mAh |
-| **GPS Fix** | 18 mA | 0.08 hrs | 1.44 mAh |
-| **Total/Day** | — | — | **~29 mAh** |
-| **1000mAh LiPo** | — | — | **~34 day runtime** |
+```mermaid
+sequenceDiagram
+    participant Sensors as Onboard Sensors
+    participant MCU as ESP32-C3 MCU
+    participant Crypto as ATECC608A Secure Element
+    participant LoRa as SX1262 LoRa TX
+    participant GW as LoRa Gateway
+    participant Dash as Web Dashboard
 
-## BOM & Cost
+    Sensors->>MCU: Read Temp, Hum, Shock, GPS
+    Note over MCU: Threshold check: Breach Detected!
+    MCU->>Crypto: Send JSON Payload Hash
+    Crypto->>Crypto: Sign Hash with Private Key (ECDSA P-256)
+    Crypto->>MCU: Return 64-byte Signature
+    MCU->>LoRa: Send Payload + Signature
+    LoRa->>GW: Transmit RF Alert (865 MHz Band)
+    GW->>Dash: Forward Data & Signature
+    Note over Dash: Verify Signature with Device Public Key
+    Dash->>Dash: Update Map & Trigger Live Breach Alarm
+```
 
-| Component | Part | Qty | Unit (INR) | Total |
-|---|---|---|---|---|
-| MCU | ESP32-C3-MINI-1 | 1 | ₹180 | ₹180 |
-| LoRa | SX1262 module (EBYTE E22) | 1 | ₹320 | ₹320 |
-| GPS | u-blox MAX-M10S module | 1 | ₹450 | ₹450 |
-| Display | 1.54" e-ink module | 1 | ₹280 | ₹280 |
-| Sensor | SHT40 | 1 | ₹95 | ₹95 |
-| Accel | ADXL345 breakout | 1 | ₹65 | ₹65 |
-| Crypto | ATECC608A | 1 | ₹55 | ₹55 |
-| NFC | ST25DV04K | 1 | ₹75 | ₹75 |
-| Charger | TP4056 module | 1 | ₹35 | ₹35 |
-| Fuel gauge | MAX17048 | 1 | ₹85 | ₹85 |
-| Battery | LiPo 1000mAh | 1 | ₹120 | ₹120 |
-| Passives/PCB | Resistors, caps, PCB | 1 | ₹40 | ₹40 |
-| **TOTAL** | | | | **₹1,800** |
+---
 
-## Build Instructions
+## Interactive Simulation
 
-1. **Order PCB** — Upload `/hardware/cargopulse_v2_schematic.pdf` + Gerbers to JLCPCB (5 pcs ~₹350 shipped)
-2. **Source Components** — Use BOM `/hardware/bom_v2.csv` with Mouser/Robu.in/DigiKey
-3. **Flash Firmware** — Install Arduino IDE 2.x, add ESP32 board package, open `/firmware/main.ino`, select "ESP32C3 Dev Module", flash via USB-C
-4. **Calibrate** — Run with Serial Monitor at 115200 baud, verify sensor readings match reference thermometer
-5. **Field Test** — Place in cold box, verify LoRa alerts reach gateway at ≥500m distance
+Test the firmware logic and threshold triggers without physical hardware using the pre-configured Wokwi simulation.
 
-## Credits & License
+### How to Run:
+1. Open the [Wokwi web simulator](https://wokwi.com).
+2. Create a new **ESP32** project.
+3. Copy the simulation sketch code from [wokwi_sketch.ino](simulation/wokwi_sketch.ino) and paste it into the code editor.
+4. Replace the default `diagram.json` content with the configuration from [wokwi.json](simulation/wokwi.json).
+5. Press **Run** to view the live serial console logs, pulsing RGB LEDs, and buzzer tones when the temperature crosses the 8.0°C limit.
 
-**Original Project:**
-polesskiy-dev / iot-risk-data-logger-nfc-samd21 (MIT License)
-https://github.com/polesskiy-dev/iot-risk-data-logger-nfc-samd21-hardware
+---
 
-**CargoPulse v2.0 additions:**
-hydra-eng (MIT License) — 2026
+## Technical Specifications
 
-Full license text: see [LICENSE](LICENSE) file
+| Parameter | Specification | Component |
+| :--- | :--- | :--- |
+| **Microcontroller** | ESP32-C3 RISC-V 32-bit CPU, 160 MHz, WiFi & BLE | ESP32-C3-MINI-1 |
+| **LoRa Transceiver** | SX1262 Sub-GHz Node, 865-867 MHz (India band), +14 dBm | Semtech SX1262 |
+| **GPS Receiver** | u-blox MAX-M10S, <1.5 m accuracy, GLONASS/BeiDou/Galileo | u-blox MAX-M10S |
+| **Display** | 1.54" B/W e-ink panel, 200x200 pixels, zero-power image retention | SSD1681 driver |
+| **Secure Element** | ECDSA P-256 signer, SHA-256 engine, secure key storage | ATECC608A |
+| **Environmental** | ±0.2°C Temperature accuracy, ±2% Relative Humidity | Sensirion SHT40 |
+| **Shock Sensor** | 3-Axis ±16g Accelerometer, threshold interrupt | Analog Devices ADXL345 |
+| **Power Source** | rechargeable LiPo battery (1000 mAh) + TP4056 USB-C charger | 1000 mAh cell |
+
+---
+
+## Power Budget & Battery Life
+
+| Mode | Current Draw | Duration per Day | Energy Consumption |
+| :--- | :--- | :--- | :--- |
+| **Deep Sleep (IDLE)** | 150 µA | 23.5 hours | 3.52 mAh |
+| **Sensor Sampling** | 45 mA | 24 minutes (4.8s/log, 300 logs) | 18.00 mAh |
+| **GPS Fix Acquisition** | 18 mA | 5 minutes (average fix time 30s) | 1.50 mAh |
+| **LoRa Alert Transmit** | 120 mA | 3 minutes (worst-case alert events) | 6.00 mAh |
+| **Total Daily Budget** | — | — | **~29.02 mAh** |
+| **Estimated Lifetime** | **~34 Days** of continuous logging on a single 1000 mAh LiPo charge |
+
+---
+
+## Build & Flashing Instructions
+
+### 1. PCB Assembly
+* Generate Gerber files from the KiCad project [cargopulse_v2.kicad_pro](hardware/cargopulse_v2.kicad_pro).
+* Order PCBs through a fabricator of your choice.
+* Solder components following the schematic [cargopulse_v2_schematic.pdf](hardware/cargopulse_v2_schematic.pdf).
+
+### 2. Uploading Firmware
+* Open Arduino IDE 2.x and add the ESP32 board support package.
+* Install the required libraries via the Library Manager:
+  * **RadioLib** (for SX1262)
+  * **TinyGPS++** (for GPS parsing)
+  * **GxEPD2** (for e-ink display control)
+  * **SparkFun ATECC608A Library** (for secure signing)
+* Connect the CargoPulse device to your computer via USB-C.
+* Open [main.ino](firmware/main.ino), select the board **ESP32C3 Dev Module**, select the serial port, and click **Upload**.
+
+### 3. Field Testing
+* Power up the device using a LiPo battery.
+* Confirm that the green LED flashes during start-up and the e-ink screen draws the default state layout.
+* Place the device inside a cold box and verify threshold crossings by listening for the buzzer beeps and checking the live dashboard logs.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

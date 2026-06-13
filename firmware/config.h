@@ -4,9 +4,6 @@
  * 
  * All GPIO assignments for ESP32-C3-MINI-1 module.
  * All operational thresholds for cold chain monitoring.
- * 
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

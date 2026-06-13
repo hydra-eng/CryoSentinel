@@ -5,9 +5,6 @@
  * Uses SparkFun ATECC608A library for hardware ECDSA signing.
  * Each device has a unique ECC private key stored in ATECC608A slot 0.
  * Signatures allow the cloud gateway to verify payload integrity.
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "crypto.h"

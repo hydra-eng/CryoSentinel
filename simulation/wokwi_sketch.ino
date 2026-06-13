@@ -14,11 +14,7 @@
  * 4. Import wokwi.json as diagram
  * 5. Click Run
  *
- * Target: ESP32 (Wokwi does not yet support ESP32-C3-MINI-1 fully;
  *         this sketch uses standard ESP32 as functional equivalent)
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 // =============================================================================

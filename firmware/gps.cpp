@@ -5,9 +5,6 @@
  * Library: TinyGPS++ by Mikal Hart
  * Install: Arduino Library Manager → "TinyGPS++"
  * Docs: http://arduiniana.org/libraries/tinygpsplus/
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "gps.h"

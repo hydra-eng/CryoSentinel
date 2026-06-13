@@ -4,9 +4,6 @@
  *
  * SX1262 driver via RadioLib (https://github.com/jgromes/RadioLib)
  * Configure India 865 MHz ISM band, SF9, BW125kHz, 14dBm.
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "alert.h"

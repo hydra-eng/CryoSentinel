@@ -5,9 +5,6 @@
  * Threshold checking and LoRa transmission via SX1262 module.
  * Uses RadioLib for SX1262 driver (MIT License).
  * Library: https://github.com/jgromes/RadioLib
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

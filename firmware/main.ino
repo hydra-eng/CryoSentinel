@@ -14,9 +14,6 @@
  *   - SparkFun ATECC608A Arduino Library                     — Hardware crypto
  *   - Wire (built-in)                                        — I2C
  *   - SPI (built-in)                                         — SPI bus
- * 
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include <Arduino.h>

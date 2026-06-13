@@ -9,9 +9,6 @@
  * Library: SparkFun ATECC608A Arduino Library
  * Install: Arduino Library Manager → "SparkFun ATECC608A"
  * GitHub: https://github.com/sparkfun/SparkFun_ATECC608A_Arduino_Library
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

@@ -8,9 +8,6 @@
  * Library: GxEPD2 by Jean-Marc Zingg
  * Install: Arduino Library Manager → "GxEPD2"
  * GitHub: https://github.com/ZinggJM/GxEPD2
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

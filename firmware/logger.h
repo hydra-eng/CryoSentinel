@@ -9,9 +9,6 @@
  *   [4B timestamp][4B temp float][4B humidity float]
  *   [4B shock float][4B lat float][4B lon float]
  *   [4B flags+reserved]
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

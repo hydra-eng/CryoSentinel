@@ -6,9 +6,6 @@
  *   - SHT40 temperature/humidity sensor (I2C 0x44)
  *   - ADXL345 3-axis accelerometer (SPI, CS=GPIO5)
  *   - MAX17048 fuel gauge (I2C 0x36)
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #pragma once

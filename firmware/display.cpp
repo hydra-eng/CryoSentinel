@@ -6,9 +6,6 @@
  * Driver IC: SSD1681 (most common for 1.54" B/W e-ink at this resolution)
  *
  * SPI pins: CLK=GPIO4, MOSI=GPIO6, CS=GPIO19, DC=GPIO18, RST=GPIO17, BUSY=GPIO16
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "display.h"

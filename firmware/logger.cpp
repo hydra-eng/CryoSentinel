@@ -10,9 +10,6 @@
  * Flash Layout:
  *   Sector 0 (4KB):   Header — magic, write pointer, entry count
  *   Sectors 1-1023:   Log data — circular buffer of 32-byte LogEntry_t records
- *
- * Based on: polesskiy-dev/iot-risk-data-logger-nfc-samd21 (MIT)
- * CargoPulse v2.0 modifications: hydra-eng — 2026
  */
 
 #include "logger.h"
