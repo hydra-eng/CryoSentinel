@@ -111,11 +111,11 @@ flowchart TD
     %% Wiring
     SHT -->|I2C / SPI / GPIO| MCU
     MCU -->|SPI| DISP
-    MCU -- SPI Bus --- FLASH
-    MCU -- SPI (Encrypted Payload) --- SX
+    MCU ---|SPI Bus| FLASH
+    MCU ---|SPI (Encrypted Payload)| SX
     GPS -->|UART (NMEA)| MCU
-    MCU -- I2C (NDEF) --- NFC
-    MCU -- I2C (Signature Request) --- ATECC
+    MCU ---|I2C (NDEF)| NFC
+    MCU ---|I2C (Signature Request)| ATECC
     
     CHG -->|Charge| BATT
     BATT -->|Monitor| FUEL
