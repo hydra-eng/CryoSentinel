@@ -69,62 +69,54 @@ Cryo Sentinel follows four core tenets of industrial design harmony and engineer
 ### Hardware Block Diagram
 
 ```mermaid
-flowchart TD
-    %% Custom Styling
-    classDef mcu fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef env fill:#1e293b,stroke:#0ea5e9,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef comms fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef pwr fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef sec fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+graph LR
+    classDef mcu fill:#1a1a1a,stroke:#4CAF50,stroke-width:2px,color:#fff
+    classDef sensor fill:#2a2a2a,stroke:#2196F3,stroke-width:1px,color:#fff
+    classDef comms fill:#2a2a2a,stroke:#FF9800,stroke-width:1px,color:#fff
+    classDef pwr fill:#2a2a2a,stroke:#F44336,stroke-width:1px,color:#fff
+    classDef security fill:#2a2a2a,stroke:#9C27B0,stroke-width:1px,color:#fff
 
-    %% Nodes
-    subgraph EdgeCompute[Core Processing Engine]
-        direction TB
-        MCU[ESP32-C3-MINI-1<br>RISC-V @ 160MHz]:::mcu
-        DISP[1.54 E-Ink Display<br>Zero-Power Memory]:::env
-        FLASH[AT25SL321 32Mbit<br>SPI NOR Flash]:::sec
+    subgraph Core Processing
+        MCU[ESP32-C3-MINI-1<br>RISC-V MCU]:::mcu
+        DISP[1.54-inch E-Ink<br>Zero-Power Display]:::sensor
     end
 
-    subgraph Sens[Environmental & Security]
-        SHT[SHT40<br>Temp & Hum]:::env
-        ADXL[ADXL345<br>3-Axis Shock]:::env
-        TAMPER[Tamper Loop<br>GPIO0 Interrupt]:::env
+    subgraph Environmental Sensors
+        SHT[SHT40<br>Temp/Hum]:::sensor
+        ADXL[ADXL345<br>3-Axis Accel]:::sensor
+        TAMPER[Physical Tamper<br>Detect Loop]:::sensor
     end
 
-    subgraph RF[Connectivity & Telemetry]
-        SX[SX1262 LoRa<br>Sub-GHz 865MHz]:::comms
-        GPS[u-blox MAX-M10S<br>L1 GNSS]:::comms
-        NFC[ST25DV04K<br>Dynamic NFC Tag]:::comms
+    subgraph Cryptography
+        ATECC[ATECC608A<br>Secure Element]:::security
     end
 
-    subgraph Crypto[Trust Anchor]
-        ATECC[ATECC608A<br>ECDSA P-256 Signer]:::sec
+    subgraph Connectivity & Telemetry
+        SX1262[SX1262<br>LoRa Module]:::comms
+        GPS[u-blox MAX-M10S<br>GPS Receiver]:::comms
+        ST25DV[ST25DV<br>Dynamic NFC]:::comms
     end
 
-    subgraph Power[Power Management Subsystem]
-        BATT[1000mAh LiPo]:::pwr
-        CHG[TP4056 USB-C]:::pwr
-        FUEL[MAX17048 Gauge]:::pwr
-        LDO[3.3V LDO Regulator]:::pwr
+    subgraph Power Management
+        POWER[1000mAh LiPo<br>Battery]:::pwr
+        CHARGE[TP4056<br>USB-C Charger]:::pwr
+        MAX17048[MAX17048<br>Fuel Gauge]:::pwr
+        LDO[AMS1117<br>3.3V LDO]:::pwr
     end
 
-    %% Wiring
-    SHT -->|I2C / SPI / GPIO| MCU
-    MCU -->|SPI| DISP
-    MCU ---|SPI Bus| FLASH
-    MCU ---|SPI (Encrypted Payload)| SX
-    GPS -->|UART (NMEA)| MCU
-    MCU ---|I2C (NDEF)| NFC
-    MCU ---|I2C (Signature Request)| ATECC
-    
-    CHG -->|Charge| BATT
-    BATT -->|Monitor| FUEL
-    FUEL -->|I2C| MCU
-    BATT --> LDO
-    LDO -->|3V3 Rail| MCU
-    
-    %% Link styles
-    linkStyle default stroke:#64748b,stroke-width:2px,color:#cbd5e1;
+    SHT -- I2C --> MCU
+    ADXL -- SPI --> MCU
+    TAMPER -- GPIO0 --> MCU
+    ATECC -- I2C --> MCU
+    SX1262 -- SPI --> MCU
+    GPS -- UART --> MCU
+    ST25DV -- I2C --> MCU
+    DISP -- SPI --> MCU
+    MAX17048 -- I2C --> MCU
+
+    CHARGE --> POWER
+    POWER --> LDO
+    LDO --> MCU
 ```
 
 ### Visual Showcases
@@ -142,11 +134,11 @@ The dashboard displays real-time state changes as the cargo travels, transitioni
 | ![Timeline Normal](docs/images/timeline_normal.png) | ![Timeline Warning](docs/images/timeline_warning.png) | ![Timeline Breach](docs/images/timeline_breach.png) |
 
 #### 🔌 PCB Design & Schematic Layout
-* **Schematic Design Layout**: Below is the fully updated schematic overview for pinouts, bus routing, and secure element integration.
+* **Schematic Design Layout (Version 1)**: Below is the original version 1 (v1) schematic overview for pinouts, bus routing, and secure element integration. *(Note: We are currently creating a new schematic for Version 2).*
   
-  ![Cryo Sentinel Schematic](assets/cryosentinel_schematic_final.svg)
+  ![Cryo Sentinel Schematic](docs/images/kicad_schematic.svg)
 
-* **PCB Layout View**: Rendered 2D board view demonstrating compact trace routing, component grouping, and antenna placement.
+* **PCB Layout View (Version 2)**: Rendered 2D board view demonstrating the new Version 2 (v2) compact trace routing, component grouping, and antenna placement.
   
   ![Cryo Sentinel 2D PCB Layout](docs/images/cryosentinel_2d_view.png)
 
@@ -169,7 +161,7 @@ stateDiagram-v2
     [*] --> STATE_IDLE
     
     note right of STATE_IDLE
-        Deep Sleep (150uA)
+        Deep Sleep (150µA)
         RTC Timer Active
     end note
     
@@ -208,38 +200,43 @@ stateDiagram-v2
 Every alert transmitted by the device contains cryptographic signatures to guarantee data authenticity and prevent record tampering.
 
 ```mermaid
-graph TD
-    %% Styling
-    classDef edge fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef cloud fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef client fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    
-    subgraph Edge ["Edge Operations (Cryo Sentinel)"]
+graph LR
+    %% Styles
+    classDef hardware fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+    classDef cloud fill:#334155,stroke:#10B981,stroke-width:2px,color:#fff,rx:8px,ry:8px;
+
+    %% Hardware Components
+    subgraph Edge_Device [Cryo Sentinel Edge Hardware]
         direction TB
-        A[Sensors Read<br/>Temp/Shock/GPS]:::edge --> B[MCU Packages<br/>Cayenne LPP Data]:::edge
-        B --> C[ATECC608A Signs<br/>Hash Payload]:::edge
-        C --> D[Save to<br/>SPI NOR Flash]:::edge
-        C --> E[Transmit via<br/>SX1262 LoRa]:::edge
+        Sensors[Temp / Shock / GPS]:::hardware
+        MCU[ESP32-C3 Processor]:::hardware
+        Crypto[ATECC608A Secure Element]:::hardware
+        Flash[RTC Memory / Flash Ledger]:::hardware
+        LoRa[SX1262 Transceiver]:::hardware
     end
 
-    subgraph Network ["Connectivity"]
-        E == "LoRaWAN 865MHz" ==> F[TTN Gateway]:::cloud
-        F -.-> G[The Things Network<br/>LNS]:::cloud
+    %% Cloud Components
+    subgraph Cloud_Backend [Enterprise Cloud Infrastructure]
+        direction TB
+        TTN[The Things Network]:::cloud
+        FastAPI[Python FastAPI Backend]:::cloud
+        Dash[Live Web Dashboard]:::cloud
     end
 
-    subgraph Cloud ["Cloud Backend"]
-        G -- "Webhook" --> H[FastAPI Backend]:::cloud
-        H --> I[(PostgreSQL DB)]:::cloud
-    end
-
-    subgraph Client ["End-User View"]
-        H == "WebSocket" ==> J[Live React Dashboard]:::client
-        J --> K[Signature Validation<br/>& Maps]:::client
-    end
+    %% Flow
+    Sensors -- "1. Raw Telemetry" --> MCU
+    MCU -- "2. Hash Generation" --> Flash
+    MCU -- "3. Signature Request" --> Crypto
+    Crypto -- "4. ECDSA P-256 Signature" --> MCU
+    MCU -- "5. Cayenne LPP Payload" --> LoRa
     
-    %% Link styles
-    linkStyle 4 stroke:#3b82f6,stroke-width:3px,color:#fff;
-    linkStyle 7 stroke:#10b981,stroke-width:3px,color:#fff;
+    LoRa -- "6. LoRaWAN 865MHz" --> TTN
+    
+    TTN -- "7. Webhook Event" --> FastAPI
+    FastAPI -- "8. WebSocket Stream" --> Dash
+
+    %% Styling linkages
+    linkStyle default stroke:#94A3B8,stroke-width:2px,color:#E2E8F0,font-size:12px;
 ```
 
 ---
@@ -291,7 +288,7 @@ Test the firmware logic and threshold triggers without physical hardware using t
 
 | Mode | Current Draw | Duration per Day | Energy Consumption |
 | :--- | :--- | :--- | :--- |
-| **Deep Sleep (IDLE)** | 150uA | 23.5 hours | 3.52 mAh |
+| **Deep Sleep (IDLE)** | 150 µA | 23.5 hours | 3.52 mAh |
 | **Sensor Sampling** | 45 mA | 24 minutes (4.8s/log, 300 logs) | 18.00 mAh |
 | **GPS Fix Acquisition** | 18 mA | 20 seconds (utilizing warm-start) | 0.10 mAh |
 | **LoRa Alert Transmit** | 120 mA | 3 minutes (worst-case alert events) | 6.00 mAh |
@@ -330,7 +327,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 3D Device Visualization
+## 3D Device Visualization (Version 2)
 
-![Cryo Sentinel 3D PCB Render](assets/pcb_3d_nobg-removebg-preview.png)
- 
+> [!NOTE]
+> This is the new PCB render for Version 2 (v2). The schematic above is for Version 1.
+
+![Cryo Sentinel 3D PCB Render](docs/images/pcb_3d_nobg-removebg-preview.png)
