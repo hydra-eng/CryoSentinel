@@ -332,4 +332,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 3D Device Visualization
 
-![Cryo Sentinel 3D PCB Render](<img width="500" height="500" alt="pcb_3d_nobg-removebg-preview" src="https://github.com/user-attachments/assets/248efe73-9483-4157-b367-a1c4686bdd70" />)
+![Cryo Sentinel 3D PCB Render](assets/pcb_3d_nobg-removebg-preview.png)
