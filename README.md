@@ -109,7 +109,7 @@ flowchart TD
     end
 
     %% Wiring
-    Sens -->|I2C / SPI / GPIO| MCU
+    SHT -->|I2C / SPI / GPIO| MCU
     MCU -->|SPI| DISP
     MCU <-->|SPI Bus| FLASH
     MCU <-->|SPI (Encrypted Payload)| SX
@@ -132,7 +132,7 @@ flowchart TD
 #### 📱 Web Dashboard Demo
 An enterprise-grade monitoring console showing live breach telemetry, transit routes, and cryptographic signature validation. Open [demo_dashboard.html](docs/demo_dashboard.html) in any web browser.
 
-![Dashboard Demo](assets/dashboard_demo.png)
+![Dashboard Demo](docs/images/dashboard_demo.png)
 
 #### 🗺 Live Timeline States
 The dashboard displays real-time state changes as the cargo travels, transitioning from normal operations, warning thresholds, to critical alerts upon breach.
@@ -169,7 +169,7 @@ stateDiagram-v2
     [*] --> STATE_IDLE
     
     note right of STATE_IDLE
-        Deep Sleep (150µA)
+        Deep Sleep (150uA)
         RTC Timer Active
     end note
     
@@ -214,7 +214,7 @@ graph TD
     classDef cloud fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#fff,rx:8px,ry:8px;
     classDef client fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff,rx:8px,ry:8px;
     
-    subgraph Edge ["❄️ Edge Operations (Cryo Sentinel)"]
+    subgraph Edge ["Edge Operations (Cryo Sentinel)"]
         direction TB
         A[Sensors Read<br/>Temp/Shock/GPS]:::edge --> B[MCU Packages<br/>Cayenne LPP Data]:::edge
         B --> C[ATECC608A Signs<br/>Hash Payload]:::edge
@@ -222,17 +222,17 @@ graph TD
         C --> E[Transmit via<br/>SX1262 LoRa]:::edge
     end
 
-    subgraph Network ["📡 Connectivity"]
+    subgraph Network ["Connectivity"]
         E == "LoRaWAN 865MHz" ==> F[TTN Gateway]:::cloud
         F -.-> G[The Things Network<br/>LNS]:::cloud
     end
 
-    subgraph Cloud ["☁️ Cloud Backend"]
+    subgraph Cloud ["Cloud Backend"]
         G -- "Webhook" --> H[FastAPI Backend]:::cloud
         H --> I[(PostgreSQL DB)]:::cloud
     end
 
-    subgraph Client ["💻 End-User View"]
+    subgraph Client ["End-User View"]
         H == "WebSocket" ==> J[Live React Dashboard]:::client
         J --> K[Signature Validation<br/>& Maps]:::client
     end
@@ -291,7 +291,7 @@ Test the firmware logic and threshold triggers without physical hardware using t
 
 | Mode | Current Draw | Duration per Day | Energy Consumption |
 | :--- | :--- | :--- | :--- |
-| **Deep Sleep (IDLE)** | 150 µA | 23.5 hours | 3.52 mAh |
+| **Deep Sleep (IDLE)** | 150uA | 23.5 hours | 3.52 mAh |
 | **Sensor Sampling** | 45 mA | 24 minutes (4.8s/log, 300 logs) | 18.00 mAh |
 | **GPS Fix Acquisition** | 18 mA | 20 seconds (utilizing warm-start) | 0.10 mAh |
 | **LoRa Alert Transmit** | 120 mA | 3 minutes (worst-case alert events) | 6.00 mAh |
