@@ -333,3 +333,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 3D Device Visualization
 
 ![Cryo Sentinel 3D PCB Render](assets/pcb_3d_nobg-removebg-preview.png)
+ 
